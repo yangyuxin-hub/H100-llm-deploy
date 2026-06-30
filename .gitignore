@@ -1,0 +1,24 @@
+# Model weights and large runtime artifacts
+models/
+logs/
+runtime/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local environment and secrets
+.env
+*.pem
+*.key
+*.token
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
