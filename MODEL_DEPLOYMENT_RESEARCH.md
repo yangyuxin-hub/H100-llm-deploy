@@ -42,15 +42,15 @@
 1. SSH 到 H100。
 2. 确认 `nvidia-smi`、CUDA、Python、vLLM 版本。
 3. 跑 `bash scripts/status.sh`。
-4. 先启动 Qwen：
+4. 启动双模型：
 
    ```bash
-   bash scripts/start_qwen.sh
+   bash scripts/start_qwen_fp8_docker.sh
+   bash scripts/start_agents_docker.sh
    ```
 
 5. 用 `/v1/models` 和 `/v1/chat/completions` 做基本验证。
 6. 记录启动时间、显存、吞吐和日志。
-7. 再启动 DeepSeek，先保持 `DS_MAX_MODEL_LEN=65536`，不要直接上 1M。
 
 ### 阶段 2：Qwen 优化实验
 

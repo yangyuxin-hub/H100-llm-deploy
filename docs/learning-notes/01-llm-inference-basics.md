@@ -152,7 +152,7 @@ curl 请求
 -> vLLM API Server
 -> tokenizer
 -> Qwen3.6-27B-FP8
--> 4 张 H100 使用 TP=4 协同推理
+-> 2 张 H100 使用 TP=2 协同推理(双模型并行,每个模型各占 2 卡)
 -> 生成 token
 -> detokenizer
 -> 返回 OpenAI 兼容 API 结果

@@ -5,6 +5,7 @@ runtime/
 
 # Python environments and caches
 .venv/
+.venv-hf-download/
 __pycache__/
 *.py[cod]
 .pytest_cache/

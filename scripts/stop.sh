@@ -3,8 +3,8 @@
 # 停止当前运行的 vLLM 服务
 # 用法:
 #   bash scripts/stop.sh              # 停止所有运行中的服务
-#   bash scripts/stop.sh qwen         # 仅停止 Qwen (按 served-name 或 pid 文件名匹配)
-#   bash scripts/stop.sh deepseek
+#   bash scripts/stop.sh qwen-fp8     # 仅停止 Qwen3.6-27B-FP8
+#   bash scripts/stop.sh agents       # 仅停止 Agents-A1-FP8
 # ============================================================================
 set -uo pipefail
 
@@ -24,6 +24,22 @@ stop_by_pidfile() {
     local pid_file="$1"
     local name="$2"
     local pid
+    local container_file="${RUNTIME_DIR}/${name}.container"
+    local container_id
+
+    if [[ -f "${container_file}" ]] && command -v docker &>/dev/null; then
+        container_id=$(cat "${container_file}" 2>/dev/null || echo "")
+        if [[ -n "${container_id}" ]] && docker inspect "${container_id}" >/dev/null 2>&1; then
+            log "${name}: 停止 Docker 容器 (${container_id:0:12})..."
+            docker stop "${container_id}" >/dev/null 2>&1 || true
+            docker rm "${container_id}" >/dev/null 2>&1 || true
+            rm -f "${container_file}" "${pid_file}"
+            STOPPED_COUNT=$((STOPPED_COUNT + 1))
+            return 0
+        fi
+        warn "${name}: Docker 容器不存在,清理容器记录"
+        rm -f "${container_file}"
+    fi
 
     pid=$(cat "${pid_file}" 2>/dev/null || echo "")
     if [[ -z "${pid}" ]]; then
@@ -78,11 +94,10 @@ for pid_file in "${RUNTIME_DIR}"/*.pid; do
 
     # 按目标过滤
     if [[ "${TARGET}" != "all" ]]; then
-        # 支持 qwen/deepseek 简写匹配 served-name
         case "${TARGET}" in
-            qwen)     [[ "${name}" == "${QWEN_SERVED_NAME}" ]] || continue ;;
-            deepseek|ds) [[ "${name}" == "${DS_SERVED_NAME}" ]] || continue ;;
-            *)        [[ "${name}" == "${TARGET}" ]] || continue ;;
+            qwen-fp8|qwen_fp8) [[ "${name}" == "${QWEN_FP8_SERVED_NAME}" ]] || continue ;;
+            agents|a1)         [[ "${name}" == "${AGENTS_SERVED_NAME}" ]] || continue ;;
+            *)                 [[ "${name}" == "${TARGET}" ]] || continue ;;
         esac
     fi
 

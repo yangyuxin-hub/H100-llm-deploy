@@ -21,68 +21,65 @@ vLLM 是大模型推理服务框架。
 /v1/chat/completions
 ```
 
-## TP=4 和 DP=1
+## 双模型并行部署(TP=2 × 2)
 
-`TP` 是 tensor parallelism，中文是张量并行。
-
-`TP=4` 的意思是：
+当前项目在 4 卡 H100 上同时运行两个模型:
 
 ```text
-一个模型服务同时使用 4 张 GPU
-4 张 GPU 共同跑一个模型
+Qwen3.6-27B-FP8   → GPU 0,1 (TP=2) → 端口 8000
+Agents-A1-FP8     → GPU 2,3 (TP=2) → 端口 8001
 ```
 
-它不是：
+### TP=2 的含义
+
+`TP` 是 tensor parallelism,中文是张量并行。`TP=2` 表示:
 
 ```text
-4 张 GPU 各跑一个完整模型
+一个模型服务同时使用 2 张 GPU
+2 张 GPU 共同跑一个模型
 ```
 
-在 vLLM 里，对应参数是：
+在 vLLM 里,对应参数是:
 
 ```text
---tensor-parallel-size 4
+--tensor-parallel-size 2
 ```
 
-当前项目配置在：
+当前项目配置在 `config/serving.env`:
 
 ```text
-config/serving.env
-TENSOR_PARALLEL_SIZE=4
-DATA_PARALLEL_SIZE=1
+QWEN_FP8_TENSOR_PARALLEL_SIZE=2
+AGENTS_TENSOR_PARALLEL_SIZE=2
 ```
 
-`DP` 是 data parallelism，中文是数据并行。
+### GPU 隔离:CUDA_VISIBLE_DEVICES
 
-`DP=1` 的意思是只启动 1 份模型实例。4 张卡全部给这个实例做 TP。
-
-4 卡环境下当前推荐：
+两个模型同时运行时,需要用 `CUDA_VISIBLE_DEVICES` 限制每个容器可见的 GPU:
 
 ```text
-TP=4, DP=1
+QWEN_FP8_CUDA_VISIBLE_DEVICES=0,1    # Qwen 容器只用 GPU 0,1
+AGENTS_CUDA_VISIBLE_DEVICES=2,3      # Agents 容器只用 GPU 2,3
 ```
 
-原因是：Qwen3.6-27B-FP8 要支持 262K 长上下文和 MTP，先把 4 张 H100 都给同一个模型实例，显存和稳定性更稳。
+容器内 vLLM 看到的 GPU 编号会重新映射为 0,1(即使宿主机是 2,3),所以 `--tensor-parallel-size 2` 对应容器内的 GPU 数。
 
-后续如果要提高并发吞吐，可以再实验：
+### 为什么不用 TP=4
 
-```text
-TP=2, DP=2
-```
-
-这表示启动 2 份模型实例，每份模型使用 2 张 GPU。它更适合多用户并发，但单个请求可用的显存和长上下文空间会减少。
+- TP=4 是 4 卡全部给一个模型,单模型吞吐最高,但同一时刻只能服务一个模型。
+- 双模型并行(TP=2 × 2)牺牲单模型峰值吞吐,换取同时提供两个不同模型的能力。
+- 适合 opencode 这类工具:小模型做快速补全,大模型做复杂任务。
 
 ## FP8
 
 FP8 是一种 8-bit 浮点格式。
 
-Qwen3.6-27B-FP8 的权重使用 FP8，可以降低显存占用，提高 H100 上的推理效率。
+Qwen3.6-27B-FP8 和 Agents-A1-FP8 的权重都使用 FP8,可以降低显存占用,提高 H100 上的推理效率。
 
 简单对比：
 
 ```text
-BF16 / FP16：更常见，显存占用更高
-FP8：更省显存，H100 支持更好
+BF16 / FP16：更常见,显存占用更高
+FP8：更省显存,H100 支持更好
 ```
 
 需要注意：
@@ -95,80 +92,99 @@ FP8：更省显存，H100 支持更好
 
 上下文长度是模型一次能看到的 token 数量。
 
-当前 Qwen 配置：
+当前两个模型都配置为原生最大值:
 
 ```text
-QWEN_MAX_MODEL_LEN=262144
+QWEN_FP8_MAX_MODEL_LEN=262144   # 256K
+AGENTS_MAX_MODEL_LEN=262144     # 256K
 ```
 
-也就是 262K tokens。
+上下文越长,模型能看更多历史信息,但 KV Cache 显存占用也会变大。
 
-上下文越长，模型能看更多历史信息，但 KV Cache 显存占用也会变大。
-
-初次部署策略：
-
-1. 先用原生 262K。
-2. 如果显存压力大，降到 128K。
-3. 不要一开始直接扩到 1M。
+KV cache 量化(`--kv-cache-dtype fp8`)可以把 KV cache 显存占用减半,是当前项目在 2 卡 TP=2 下还能放下 256K 上下文的关键。
 
 ## OpenAI 兼容 API
 
-OpenAI 兼容 API 的意思是：虽然后端跑的是本地 Qwen 或 DeepSeek，但接口格式模仿 OpenAI。
+OpenAI 兼容 API 的意思是:虽然后端跑的是本地 Qwen 或 Agents,但接口格式模仿 OpenAI。
 
-好处是：
+好处是:
 
 1. 客户端容易接入。
 2. 可以用 `/v1/chat/completions` 发对话请求。
 3. 很多已有工具可以直接改 base_url 使用。
 
-当前 Qwen 服务名是：
+当前两个模型的 served-model-name 是:
 
 ```text
-qwen3.6-27b-fp8
+qwen3.6-27b-fp8    (端口 8000)
+agents-a1-fp8      (端口 8001)
 ```
 
-请求时需要写：
+请求时需要写:
 
 ```json
-{
-  "model": "qwen3.6-27b-fp8"
-}
+{"model": "qwen3.6-27b-fp8"}
+```
+
+或
+
+```json
+{"model": "agents-a1-fp8"}
 ```
 
 ## MTP / Speculative Decoding
 
 MTP 是 multi-token prediction。
 
-普通生成通常是一个 token 一个 token 地预测。MTP 的目标是一次尝试预测多个 token，从而提升生成速度。
+普通生成通常是一个 token 一个 token 地预测。MTP 的目标是一次尝试预测多个 token,从而提升生成速度。
 
-在 Qwen3.6-27B-FP8 里，可以后续实验：
+两个模型都启用 MTP:
 
 ```text
-speculative_config={"method":"qwen3_next_mtp","num_speculative_tokens":2}
+--speculative-config '{"method":"qwen3_next_mtp","num_speculative_tokens":2}'
 ```
 
-当前项目要求 Qwen 必须支持 MTP，所以 Qwen 默认开启 MTP。
+- MTP 只加速 decode 阶段,prefill 不加速。
+- MoE 模型(Agents-A1)decode 计算密度低,MTP 加速效果更明显。
+- 启用后启动时间会增加(需要编译额外图)。
 
-推荐顺序：
+## Function Calling(工具调用)
 
-1. 先使用 `TP=4, DP=1` 跑通 Qwen + MTP。
-2. 再测试 text-only。
-3. 最后再实验 `TP=2, DP=2` 的并发吞吐。
+opencode 等 Agent 工具需要 Function Calling(让模型调用工具),vLLM 默认关闭。
+
+vLLM 启动加两个参数:
+
+```text
+--enable-auto-tool-choice          # 开启工具调用
+--tool-call-parser qwen3_coder     # 指定解析格式(两个模型都用这个)
+```
+
+不同模型用不同的 parser,选错了模型会输出工具调用文本但不被解析。两个模型的官方推荐都是 `qwen3_coder`。
+
+## One API 网关
+
+两个 vLLM 端点(8000、8001)通过 One API 网关统一对外:
+
+```text
+应用 → One API (10.30.75.58:18082) → vLLM (10.16.11.24:8000 或 8001)
+```
+
+One API 的作用:
+- 统一入口:多个模型通过一个端口访问
+- 计费统计:记录每次调用的 token 数
+- Token 管理:给不同应用发不同 token
+- 渠道路由:根据 model 名自动转发到对应后端
+
+每个模型配一个「渠道」,渠道类型=OpenAI,Base URL 指向 vLLM 端点。
 
 ## Text-only 模式
 
 Qwen3.6-27B-FP8 是带视觉 encoder 的模型。
 
-如果当前任务只需要文本、代码和 Agent，可以测试 text-only 模式：
+当前项目只用文本、代码和 Agent 场景,所以加 `--language-model-only` 跳过 vision encoder:
 
-```text
---language-model-only
-```
+- 减少不需要的多模态部分开销。
+- 给文本推理和 KV Cache 留更多空间。
+- 让纯文本服务更稳定。
 
-可能收益：
-
-1. 减少不需要的多模态部分开销。
-2. 给文本推理和 KV Cache 留更多空间。
-3. 让纯文本服务更稳定。
-
-是否作为默认配置，需要等 H100 上实际测试后决定。
+Agents-A1-FP8 是纯文本模型,不需要这个参数。

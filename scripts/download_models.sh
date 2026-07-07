@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================================
-# 下载 Qwen3.6-27B-FP8 和 DeepSeek-V4-Flash-DSpark 模型权重
+# 下载 Qwen3.6-27B-FP8 和 Agents-A1-FP8 模型权重
 # 数据源: ModelScope (国内速度快)
 # 用法:
 #   bash scripts/download_models.sh           # 下载两个模型
-#   bash scripts/download_models.sh qwen     # 仅下载 Qwen
-#   bash scripts/download_models.sh deepseek # 仅下载 DeepSeek
+#   bash scripts/download_models.sh qwen      # 仅下载 Qwen3.6-27B-FP8
+#   bash scripts/download_models.sh agents    # 仅下载 Agents-A1-FP8
 # ============================================================================
 set -euo pipefail
 
@@ -53,19 +53,19 @@ download_model() {
 TARGET="${1:-all}"
 case "${TARGET}" in
     all)
-        log "=== 将下载两个模型(Qwen ~28GB + DeepSeek ~154GB) ==="
-        download_model "${QWEN_MODELSCOPE_ID}" "${MODEL_PATH_QWEN}" "Qwen3.6-27B-FP8"
+        log "=== 将下载两个模型(Qwen3.6-27B-FP8 + Agents-A1-FP8) ==="
+        download_model "${QWEN_FP8_MODELSCOPE_ID}" "${QWEN_FP8_MODEL_PATH}" "Qwen3.6-27B-FP8"
         echo ""
-        download_model "${DS_MODELSCOPE_ID}" "${MODEL_PATH_DS}" "DeepSeek-V4-Flash-DSpark"
+        download_model "${AGENTS_MODELSCOPE_ID}" "${AGENTS_MODEL_PATH}" "Agents-A1-FP8"
         ;;
-    qwen)
-        download_model "${QWEN_MODELSCOPE_ID}" "${MODEL_PATH_QWEN}" "Qwen3.6-27B-FP8"
+    qwen|qwen-fp8|qwen_fp8)
+        download_model "${QWEN_FP8_MODELSCOPE_ID}" "${QWEN_FP8_MODEL_PATH}" "Qwen3.6-27B-FP8"
         ;;
-    deepseek|ds)
-        download_model "${DS_MODELSCOPE_ID}" "${MODEL_PATH_DS}" "DeepSeek-V4-Flash-DSpark"
+    agents|a1)
+        download_model "${AGENTS_MODELSCOPE_ID}" "${AGENTS_MODEL_PATH}" "Agents-A1-FP8"
         ;;
     *)
-        err "未知参数: ${TARGET}。可选: all | qwen | deepseek"
+        err "未知参数: ${TARGET}。可选: all | qwen | agents"
         exit 1
         ;;
 esac
@@ -73,8 +73,8 @@ esac
 # 下载完整性校验
 echo ""
 log "=== 下载完整性校验 ==="
-verify_shards() {
-    local path="$1" expected="$2" name="$3"
+verify_weights() {
+    local path="$1" name="$2"
     if [[ ! -d "${path}" ]]; then
         err "${name} 目录不存在: ${path}"
         return 1
@@ -89,11 +89,11 @@ verify_shards() {
     [[ -f "${path}/config.json" ]] && config_ok="YES"
     local size
     size=$(du -sh "${path}" 2>/dev/null | awk '{print $1}')
-    log "${name}: safetensors 文件数 = ${actual} (预期 ≥ ${expected}), config.json = ${config_ok}, 总大小 = ${size}"
+    log "${name}: safetensors 文件数 = ${actual}, config.json = ${config_ok}, 总大小 = ${size}"
 }
 
-verify_shards "${MODEL_PATH_QWEN}" 1 "Qwen3.6-27B-FP8"
-verify_shards "${MODEL_PATH_DS}" "${DS_SHARDS_EXPECTED}" "DeepSeek-V4-Flash-DSpark"
+verify_weights "${QWEN_FP8_MODEL_PATH}" "Qwen3.6-27B-FP8"
+verify_weights "${AGENTS_MODEL_PATH}"   "Agents-A1-FP8"
 
 echo ""
-log "全部完成。可执行 scripts/start_qwen.sh 或 scripts/start_deepseek.sh 启动服务"
+log "全部完成。可执行 scripts/start_qwen_fp8_docker.sh 或 scripts/start_agents_docker.sh 启动服务"
