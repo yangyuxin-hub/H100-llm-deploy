@@ -1,0 +1,299 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "大模型部署与评测项目：求职价值盘点",
+    "description": "把近期模型部署、推理优化、评测平台建设和 TAU2 故障治理整理成可用于简历与面试的证据链。",
+    "generatedAt": "2026-07-16T14:10:08+08:00",
+    "cards": [
+      {
+        "id": "deployment_card",
+        "description": "同一离线节点上的稳定服务与实验服务，分别使用 TP2。",
+        "dataset": "headline",
+        "sourceId": "reviewed_data",
+        "metrics": [
+          {"label": "H100 80GB", "field": "gpus", "format": "number"},
+          {"label": "并行 27B FP8 服务", "field": "models", "format": "number"}
+        ]
+      },
+      {
+        "id": "automation_card",
+        "description": "P1 双模型真实 smoke 与七项核心正式评测的执行完整性。",
+        "dataset": "headline",
+        "sourceId": "reviewed_data",
+        "metrics": [
+          {"label": "P1 smoke 成功", "field": "p1_smoke", "format": "number"},
+          {"label": "核心模型-任务成功", "field": "core_statuses", "format": "number"}
+        ]
+      },
+      {
+        "id": "throughput_card",
+        "description": "并发 16、同配置稳态复测；两模型差异 0.52%。",
+        "dataset": "headline",
+        "sourceId": "reviewed_data",
+        "metrics": [
+          {"label": "Qwen 输出吞吐 tok/s", "field": "qwen_tps", "format": "number"},
+          {"label": "ThinkingCap tok/s", "field": "thinkingcap_tps", "format": "number"}
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "role_fit_chart",
+        "title": "项目对目标岗位的支撑强度",
+        "subtitle": "5 为强匹配，1 为弱匹配；基于当前可验证项目证据",
+        "intent": "comparison",
+        "question": "现有项目经验最能支撑哪些求职方向？",
+        "rationale": "六个岗位使用同一序数尺度，横向条形图可快速显示投递优先级；详细证据与缺口保留在下方表格。",
+        "comparisonContext": {
+          "baseline": "当前项目证据",
+          "denominator": "部署、性能、评测、Agent 调试与运维五类证据",
+          "grain": "role",
+          "normalization": "expert judgment on a 1–5 ordinal scale",
+          "semanticFamily": "job-fit evidence strength",
+          "unit": "score"
+        },
+        "type": "bar",
+        "dataset": "role_fit_chart",
+        "sourceId": "reviewed_data",
+        "encodings": {
+          "x": {"field": "role", "type": "nominal", "label": "岗位"},
+          "y": {"field": "score", "type": "quantitative", "label": "匹配度（1–5）", "format": "number"},
+          "tooltip": [
+            {"field": "fit", "type": "nominal", "label": "判断"},
+            {"field": "top_evidence", "type": "nominal", "label": "最强证据"}
+          ]
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "labels": {"values": "all"},
+        "legend": {"position": "none"},
+        "palette": {"kind": "categorical", "name": "blue"},
+        "settings": {"orientation": "horizontal", "showValues": true, "sort": "descending"},
+        "surface": {"surface": "card", "viewMode": "both"}
+      }
+    ],
+    "tables": [
+      {
+        "id": "workstream_table",
+        "title": "近期工作全景",
+        "subtitle": "按交付物而不是按命令罗列，便于转换成项目经历",
+        "dataset": "workstreams",
+        "sourceId": "reviewed_data",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "顺序", "type": "number"},
+          {"field": "workstream", "label": "工作主线", "type": "text"},
+          {"field": "delivery", "label": "完成的交付", "type": "text"},
+          {"field": "proof", "label": "可量化证据", "type": "text"},
+          {"field": "signal", "label": "向招聘方证明", "type": "text"}
+        ]
+      },
+      {
+        "id": "role_fit_table",
+        "title": "岗位匹配度",
+        "subtitle": "强项来自已有证据；缺口是下一轮补强方向",
+        "dataset": "role_fit",
+        "sourceId": "reviewed_data",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "优先级", "type": "number"},
+          {"field": "role", "label": "岗位", "type": "text"},
+          {"field": "fit", "label": "匹配度", "type": "text"},
+          {"field": "evidence", "label": "现有证据", "type": "text"},
+          {"field": "gap", "label": "主要缺口", "type": "text"}
+        ]
+      },
+      {
+        "id": "timeline_table",
+        "title": "最近四天的关键推进",
+        "subtitle": "适合回答面试中的“最近在做什么”",
+        "dataset": "timeline",
+        "sourceId": "reviewed_data",
+        "defaultSort": {"field": "date", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "date", "label": "日期", "type": "text"},
+          {"field": "focus", "label": "重点", "type": "text"},
+          {"field": "result", "label": "结果", "type": "text"}
+        ]
+      },
+      {
+        "id": "roadmap_table",
+        "title": "求职转化行动清单",
+        "subtitle": "按投入产出排序；先把现有成果变成招聘方可验证的材料",
+        "dataset": "roadmap",
+        "sourceId": "reviewed_data",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "顺序", "type": "number"},
+          {"field": "action", "label": "行动", "type": "text"},
+          {"field": "output", "label": "产出", "type": "text"},
+          {"field": "value", "label": "求职价值", "type": "text"}
+        ]
+      }
+    ],
+    "sources": [
+      {"id": "reviewed_data", "label": "求职项目盘点复核数据", "path": "docs/reports/job-search-project-summary-20260716/source.sql"},
+      {"id": "project_log", "label": "项目总记录", "path": "PROJECT_LOG.md"},
+      {"id": "deployment_log", "label": "ThinkingCap 部署与性能日志", "path": "docs/project-log/2026-07-13.md"},
+      {"id": "recent_logs", "label": "核心与 P1 评测日志", "path": "docs/project-log/2026-07-14.md"},
+      {"id": "p1_log", "label": "P1 自动化与 Agent 评测日志", "path": "docs/project-log/2026-07-15.md"},
+      {"id": "serving_config", "label": "推理服务配置", "path": "config/serving.env"},
+      {"id": "p1_runner", "label": "P1 评测入口说明", "path": "benchmarks/modelcard/README.md"},
+      {"id": "tau2_patch", "label": "TAU2 运行时异常审计补丁", "path": "benchmarks/modelcard/tau2_runtime_patch.py"}
+    ],
+    "blocks": [
+      {"id": "title", "type": "markdown", "body": "# 大模型部署与评测项目：求职价值盘点"},
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## Executive Summary\n\n**这段经历对找工作有明显帮助，最适合包装成一个端到端 LLM Systems 项目，而不是“调用 vLLM 跑了几个榜单”。** 你已经覆盖了模型上线前检查、4×H100 资源切分、双服务隔离、FP8/MTP/KV cache 推理优化、OpenAI 兼容接口、统一评测协议、异常样本审计、离线依赖治理和长任务恢复。\n\n优先投递 **LLM 推理/部署工程师、模型评测工程师、ML Systems/AI Infra 工程师**；Agent 工程岗位也有较强支撑。对纯训练算法或基础研究岗位帮助有限，因为当前证据主要集中在推理与评测，尚缺训练、微调、数据配方和论文型研究。\n\n最有辨识度的一句话是：**在受限、离线的 4×H100 环境中，把两个 27B FP8 模型从部署、性能调优、工具协议兼容、评测自动化做到可复现交付，并能在 benchmark 失败时定位到推理解析与评分链路。**"
+      },
+      {"id": "headline_metrics", "type": "metric-strip", "cardIds": ["deployment_card", "automation_card", "throughput_card"]},
+      {
+        "id": "key_findings",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## 你最近真正完成了什么\n\n成果可以分成四条相互支撑的主线。部署保证模型可用，性能实验说明资源配置不是拍脑袋，评测平台把比较变成可重复流程，TAU2 故障治理则证明你能穿过模型、推理服务、adapter 和 scorer 多层链路定位问题。招聘方更看重这条完整闭环，而不是某一个分数。"
+      },
+      {"id": "workstream_block", "type": "table", "tableId": "workstream_table", "layout": "full"},
+      {
+        "id": "deployment_detail",
+        "type": "markdown",
+        "sourceId": "deployment_log",
+        "body": "## 主线一：模型部署与推理优化\n\n- 在 4×H100 80GB 节点上保留稳定 Qwen 服务，同时用另外两张卡部署 ThinkingCap，两个 27B FP8 模型均为 TP2，避免实验影响稳定端点。\n- 固化 vLLM 0.24.0、Docker、FLASH_ATTN、FP8 KV cache、MTP3、262K 上下文、GPU/NUMA 绑定及 OpenAI 兼容 API；记录 131,072 batched tokens 会 OOM，保守值使用 65,536。\n- 做同配置并发与长上下文验证。并发 16 稳态输出吞吐为 2,342.2 与 2,354.3 tok/s，差异仅 0.52%；8K–140K 扫描无失败。\n- 通过 MTP 与采样参数消融确认接受率变化的主要来源，并为 ThinkingCap 增加工具调用兼容模板。\n\n这部分直接对应 GPU 推理、服务隔离、容量边界、性能基准和变更风险控制，是 LLM inference/serving 岗位最强的证据。"
+      },
+      {
+        "id": "evaluation_detail",
+        "type": "markdown",
+        "sourceId": "p1_log",
+        "body": "## 主线二：模型评测工程化\n\n- 建立隔离的 EvalScope 1.6.1 / Python 3.10.20 环境，处理无公网节点的数据、模型与依赖缓存；对依赖冲突的 WMT 使用独立环境。\n- 建成双模型、七项核心评测与十项 P1 ranked runner，支持 preflight、dry-run、smoke、full、断点续跑、单项重跑、全局锁、进程保护、原始响应审计和去重状态汇总。\n- 七项核心正式评测形成 14 个成功模型-任务状态；P1 双模型真实 smoke 达到 20/20 SUCCESS。\n- 对结果做方法学复核：LongBench 只报告上下文预算内 400/503 题并明确排除 103 题；IFEval 在全量 +2.96pp 的同时，进一步发现剔除 max-token 样本后差距缩小到 +1.20pp 且 bootstrap 区间跨 0。\n\n这说明你不只是会跑 benchmark，还知道协议冻结、可比性、分母完整性、截断偏差和不确定性分析。"
+      },
+      {
+        "id": "tau2_detail",
+        "type": "markdown",
+        "sourceId": "tau2_patch",
+        "body": "## 主线三：TAU2-Bench 故障定位与修复\n\nTAU2 失败不是简单的网络或依赖错误。你定位到两类空 assistant：Qwen 在 reasoning parser 后出现空 content/tool_calls，ThinkingCap 则可能耗尽输出预算后仍为空，最终触发 `AssistantMessage` 校验异常，使整套 benchmark fail-fast。\n\n修复采用评测语义优先的方式：记录 raw response；引入专门的空响应异常；把被测 agent 的无效空输出记为该样本 0 分并继续，而不伪造响应、不重试，从而保住 pass@1 分母；TAU2 单轮预算从 81,920 调整到 8,192。还用非 thinking smoke 发现 Qwen 会回退为文本伪工具调用，因此撤销该配置，而 ThinkingCap 的原生工具调用 smoke 得到 1.0。\n\n为优先验证修复，你安全暂停原 full run 的进程组，启动 269 题 TAU2 独立 full，并设置结束后自动恢复。当前正式运行仍在进行，因此不把过程分数写成最终成绩。这个案例很适合做面试中的系统调试故事。"
+      },
+      {
+        "id": "timeline_intro",
+        "type": "markdown",
+        "sourceId": "recent_logs",
+        "body": "## 最近工作的时间线\n\n这四天的推进体现了从基础设施到正式评测、再到 Agent benchmark 故障治理的连续性。"
+      },
+      {"id": "timeline_block", "type": "table", "tableId": "timeline_table", "layout": "full"},
+      {
+        "id": "role_fit_intro",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## 对找工作的具体帮助\n\n它最大的价值不是证明某个模型分数更高，而是证明你能独立负责一段模型基础设施生命周期：识别硬件和软件约束，形成可复现配置，设计公平实验，处理失败，最后给出带边界的结论。"
+      },
+      {"id": "role_fit_chart_block", "type": "chart", "chartId": "role_fit_chart", "layout": "full"},
+      {"id": "role_fit_block", "type": "table", "tableId": "role_fit_table", "layout": "full"},
+      {
+        "id": "resume_bullets",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## 可直接改写进简历的项目描述\n\n**项目标题：双 27B 大模型推理部署与自动化评测平台**\n\n- 在离线 4×H100 80GB 节点上并行部署 Qwen3.6-27B-FP8 与 ThinkingCap-Qwen3.6-27B-FP8，基于 vLLM、Docker、TP2、FP8 KV cache、FLASH_ATTN 与 MTP3 完成资源隔离、262K 上下文配置和 OpenAI 兼容服务验证。\n- 构建双模型自动化评测流水线，覆盖七项核心任务与十项 P1 ranked 任务，支持 preflight/smoke/full、断点续跑、全局锁、原始响应审计及独立状态汇总；完成核心评测 14 个模型-任务状态和 P1 真实 smoke 20/20。\n- 完成并发和长上下文性能验证：并发 16 时两模型输出吞吐约 2.34K tok/s、差异 0.52%，8K–140K 上下文扫描无失败；通过 MTP/采样消融定位接受率变化来源。\n- 建立评测结果复核方法，显式处理上下文超限与输出截断；在 IFEval 中将表面 +2.96pp 优势拆解为截断敏感性问题，避免给出过度结论。\n- 定位 TAU2-Bench reasoning parser/输出耗尽导致的空 assistant 崩溃，增加 raw audit 与逐样本失败隔离，在不重写响应、不重试的前提下保留 pass@1 分母，并完成优先 full-run 编排。\n\n投递时保留 3–4 条即可。第一、二条适合所有目标岗位；推理岗保留第三条，评测/Agent 岗保留第四、五条。"
+      },
+      {
+        "id": "interview_stories",
+        "type": "markdown",
+        "sourceId": "p1_log",
+        "body": "## 面试应重点讲的三个故事\n\n1. **双服务隔离部署：** 为什么不能影响稳定 Qwen，如何按 GPU/NUMA 切分，如何验证模型、parser、MTP 和长上下文，以及遇到 OOM 后如何确定安全容量。\n2. **评测不是跑分：** 为什么同名榜单不能直接横比，如何冻结 prompt、harness、seed、judge 和 token budget；用 LongBench 分母与 IFEval 截断敏感性说明你会质疑表面结果。\n3. **TAU2 故障治理：** 从 suite 级崩溃追到空 assistant 的两种根因，为什么不能用重试或伪造文本掩盖，如何设计逐样本 0 分与 raw audit，并安全暂停/恢复长任务。\n\n每个故事按“约束—判断—动作—验证—结果—仍有边界”讲，比按操作日志复述更有说服力。"
+      },
+      {
+        "id": "gaps",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## 目前不能过度声称的部分\n\n- 这是高质量实验与交付环境，但还不是多租户生产平台；没有线上流量、SLO、告警闭环、容量成本和故障演练数据，不建议直接写“生产级”。\n- HLE 与 AA-LCR 尚缺独立 judge；TAU2 优先 full 仍在跑，过程结果不能当正式成绩；ThinkingCap MMLU-Pro 84.29% pilot 缺完整 Qwen 对照。\n- 当前优势集中在推理和评测，不足以直接证明训练、微调、数据工程或算法研究能力。\n- 内网 IP、路径和模型资产不能直接公开；求职作品集需要脱敏，并保留可复现配置、日志样例和设计说明。"
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## Recommended Next Steps\n\n求职收益最高的下一步不是再无边界增加 benchmark，而是把已有成果压缩成招聘方能在几分钟内验证的证据。"
+      },
+      {"id": "roadmap_block", "type": "table", "tableId": "roadmap_table", "layout": "full"},
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## Further Questions\n\n- 你准备优先投推理部署、模型评测、AI Infra，还是 Agent 工程？不同目标应替换简历第三、四条的顺序。\n- 这些模型名、硬件配置和评测数字能公开到什么程度？若不能公开，需要准备脱敏版本。\n- 你是应届、实习转正还是社招？项目标题、篇幅和面试叙事强度需要按年限调整。\n- 是否愿意补一个 Prometheus/Grafana 监控与 SLO 小闭环？这会明显增强 AI Infra 岗位说服力。"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "sourceId": "project_log",
+        "body": "## Caveats\n\n本报告依据仓库中的项目总记录、7 月 13–15 日日志、推理配置、P1 runner 与 TAU2 patch，以及 2026-07-16 仍在运行的任务状态整理。已完成的性能与正式评测数字和进行中任务被明确区分。岗位匹配度属于基于项目证据的职业判断，不等同于具体公司的招聘结论；最终效果还取决于简历表达、基础知识、算法/系统面试和可公开作品。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-16T14:10:08+08:00",
+    "status": "ready",
+    "datasets": {
+      "headline": [
+        {"gpus": 4, "models": 2, "p1_smoke": 20, "core_statuses": 14, "qwen_tps": 2342.2, "thinkingcap_tps": 2354.3}
+      ],
+      "workstreams": [
+        {"order": 1, "workstream": "部署与隔离", "delivery": "双 27B FP8、双 TP2 服务；稳定端与实验端分卡运行", "proof": "4×H100 80GB；端口 8000/8001；262K context", "signal": "能读懂硬件约束并控制上线变更风险"},
+        {"order": 2, "workstream": "推理性能", "delivery": "FP8 KV、FLASH_ATTN、MTP3、NUMA、容量边界和长上下文扫描", "proof": "并发 16 为 2342.2/2354.3 tok/s；8K–140K 零失败", "signal": "会设计同口径性能实验，不只会改参数"},
+        {"order": 3, "workstream": "评测平台", "delivery": "核心 7 项与 P1 10 项双模型 runner，覆盖预检到 full", "proof": "核心 14 个 SUCCESS；P1 smoke 20/20", "signal": "能把一次性跑分工程化、可恢复、可审计"},
+        {"order": 4, "workstream": "结果方法学", "delivery": "统一协议、显式分母、截断敏感性与 bootstrap 复核", "proof": "LongBench 400/503；IFEval +2.96pp 降至 +1.20pp", "signal": "不会把有偏结果包装成结论"},
+        {"order": 5, "workstream": "Agent/工具协议", "delivery": "ThinkingCap 工具模板、BFCL/TAU2 raw audit 与生成配置修复", "proof": "TAU2 定向 Qwen 2 题可完成；ThinkingCap smoke 1.0", "signal": "能跨 prompt、parser、API 与 harness 调试"},
+        {"order": 6, "workstream": "离线与运维", "delivery": "本地依赖/数据缓存、断点续跑、锁、进程组暂停与自动恢复", "proof": "P1 full 与 TAU2 priority run 并行编排且不丢原任务", "signal": "有受限环境下的交付和长任务运维意识"}
+      ],
+      "role_fit": [
+        {"order": 1, "role": "LLM 推理/部署工程师", "fit": "强", "evidence": "H100、vLLM、TP2、FP8、MTP、KV cache、NUMA、长上下文与吞吐", "gap": "补线上监控、SLO、容量与成本模型"},
+        {"order": 2, "role": "模型评测/Benchmark 工程师", "fit": "强", "evidence": "协议冻结、双模型 runner、分母审计、截断分析、judge gate", "gap": "补独立 judge、统计功效与更多可公开复现实验"},
+        {"order": 3, "role": "ML Systems / AI Infra", "fit": "较强", "evidence": "容器、GPU 隔离、离线依赖、自动化、锁与恢复", "gap": "补 Kubernetes/调度、监控告警和多租户服务证据"},
+        {"order": 4, "role": "Agent / Tool-use 工程师", "fit": "较强", "evidence": "BFCL、TAU2、tool parser、chat template、轨迹与 raw response 调试", "gap": "补真实 Agent 产品闭环、状态/记忆与线上成功率"},
+        {"order": 5, "role": "通用机器学习工程师", "fit": "中等", "evidence": "实验设计、数据与环境治理、结果分析", "gap": "补训练/微调、特征或数据流水线"},
+        {"order": 6, "role": "模型训练/算法研究", "fit": "偏弱", "evidence": "有推理与评测洞察", "gap": "缺训练配方、消融、论文复现和研究产出"}
+      ],
+      "role_fit_chart": [
+        {"role": "LLM 推理/部署", "score": 5, "fit": "强", "top_evidence": "H100、vLLM、TP2、FP8、MTP、性能实验"},
+        {"role": "模型评测/Benchmark", "score": 5, "fit": "强", "top_evidence": "评测自动化、协议冻结、结果审计"},
+        {"role": "ML Systems / AI Infra", "score": 4, "fit": "较强", "top_evidence": "容器、GPU 隔离、离线依赖、任务恢复"},
+        {"role": "Agent / Tool-use", "score": 4, "fit": "较强", "top_evidence": "BFCL、TAU2、tool parser、轨迹调试"},
+        {"role": "通用机器学习工程", "score": 3, "fit": "中等", "top_evidence": "实验设计、数据与环境治理"},
+        {"role": "模型训练/算法研究", "score": 2, "fit": "偏弱", "top_evidence": "只有推理与评测侧证据"}
+      ],
+      "timeline": [
+        {"date": "2026-07-13", "focus": "ThinkingCap 部署与性能", "result": "完成双服务、MTP3、吞吐与长上下文验证，稳定 Qwen 未受影响"},
+        {"date": "2026-07-14", "focus": "核心评测与 IFEval", "result": "修复依赖/数据链路，形成带截断敏感性与置信区间的正式报告"},
+        {"date": "2026-07-15", "focus": "P1 ranked 自动化", "result": "完成 10 项×2 模型 smoke 20/20，修复 BFCL/TAU2 工具协议与假成功"},
+        {"date": "2026-07-16", "focus": "TAU2 优先 full 与故障治理", "result": "暂停原 full、加入逐样本失败隔离与 raw audit，启动 269 题正式任务并设置自动恢复"}
+      ],
+      "roadmap": [
+        {"order": 1, "action": "做一页脱敏项目 README", "output": "架构图、约束、关键指标、三次故障与复现命令", "value": "招聘方 3 分钟内能理解项目"},
+        {"order": 2, "action": "把 TAU2 和 P1 full 收尾", "output": "正式成绩、失败分类、空响应比例和修复前后对比", "value": "把进行中案例变成完整 STAR 结果"},
+        {"order": 3, "action": "制作 3–5 分钟演示", "output": "启动状态、双模型请求、评测断点续跑、raw audit", "value": "增强项目真实性与面试表达"},
+        {"order": 4, "action": "补监控与 SLO 小闭环", "output": "Prometheus/Grafana：TTFT、TPOT、吞吐、GPU、错误率", "value": "从实验部署升级为 production-minded AI Infra 证据"},
+        {"order": 5, "action": "准备三个 STAR 故事", "output": "双部署、评测偏差、TAU2 故障各一页", "value": "把技术细节转成可判断的个人贡献"},
+        {"order": 6, "action": "按岗位裁剪简历", "output": "推理版、评测版两套 3–4 条 bullet", "value": "提高关键词匹配和面试命中率"}
+      ]
+    }
+  },
+  "sources": [
+    {"id": "reviewed_data", "label": "求职项目盘点复核数据", "path": "docs/reports/job-search-project-summary-20260716/source.sql"},
+    {"id": "project_log", "label": "项目总记录", "path": "PROJECT_LOG.md"},
+    {"id": "deployment_log", "label": "ThinkingCap 部署与性能日志", "path": "docs/project-log/2026-07-13.md"},
+    {"id": "recent_logs", "label": "核心与 P1 评测日志", "path": "docs/project-log/2026-07-14.md"},
+    {"id": "p1_log", "label": "P1 自动化与 Agent 评测日志", "path": "docs/project-log/2026-07-15.md"},
+    {"id": "serving_config", "label": "推理服务配置", "path": "config/serving.env"},
+    {"id": "p1_runner", "label": "P1 评测入口说明", "path": "benchmarks/modelcard/README.md"},
+    {"id": "tau2_patch", "label": "TAU2 运行时异常审计补丁", "path": "benchmarks/modelcard/tau2_runtime_patch.py"}
+  ]
+}
