@@ -1,0 +1,1255 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "82 项模型评测覆盖差距：现在缺什么",
+    "description": "对照当前项目 EvalScope 主套件、本地 adapter、数据准备和已有结果，逐项盘点 82 个语言与视觉语言 benchmark 的工程缺口。",
+    "generatedAt": "2026-07-14T17:35:00+08:00",
+    "charts": [
+      {
+        "id": "coverage_status_chart",
+        "title": "82 项候选 benchmark 的当前接入状态",
+        "subtitle": "按 benchmark 行计数；工程覆盖状态，不代表模型能力",
+        "showDescription": true,
+        "type": "bar",
+        "dataset": "coverage_counts",
+        "sourceId": "gap_notes",
+        "encodings": {
+          "x": {
+            "field": "coverage_status",
+            "type": "nominal",
+            "label": "接入状态"
+          },
+          "y": {
+            "field": "benchmark_count",
+            "type": "quantitative",
+            "label": "Benchmark 数量",
+            "format": "number"
+          }
+        },
+        "layout": "full"
+      }
+    ],
+    "tables": [
+      {
+        "id": "modality_summary_table",
+        "title": "语言与视觉语言覆盖汇总",
+        "subtitle": "82 个 benchmark 行；状态互斥",
+        "showDescription": true,
+        "dataset": "modality_counts",
+        "defaultSort": {
+          "field": "modality",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "sourceId": "gap_notes",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "modality",
+            "label": "模态",
+            "type": "text"
+          },
+          {
+            "field": "total",
+            "label": "总数",
+            "type": "number"
+          },
+          {
+            "field": "exact",
+            "label": "主套件已接入",
+            "type": "number"
+          },
+          {
+            "field": "partial",
+            "label": "部分接入",
+            "type": "number"
+          },
+          {
+            "field": "registered",
+            "label": "EvalScope 可补接",
+            "type": "number"
+          },
+          {
+            "field": "missing",
+            "label": "未接入",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "id": "benchmark_gap_table",
+        "title": "82 项 benchmark 逐项缺口",
+        "subtitle": "按原表顺序；结果状态只认真实评分输出，不含 dry-run",
+        "showDescription": true,
+        "dataset": "benchmark_gap_rows",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "dense",
+        "sourceId": "gap_notes",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "#",
+            "type": "number"
+          },
+          {
+            "field": "modality",
+            "label": "模态",
+            "type": "text"
+          },
+          {
+            "field": "category",
+            "label": "类别",
+            "type": "text"
+          },
+          {
+            "field": "benchmark",
+            "label": "Benchmark",
+            "type": "text"
+          },
+          {
+            "field": "coverage_status",
+            "label": "接入状态",
+            "type": "text"
+          },
+          {
+            "field": "priority",
+            "label": "优先级",
+            "type": "text"
+          },
+          {
+            "field": "result_status",
+            "label": "本地结果",
+            "type": "text"
+          },
+          {
+            "field": "missing_next",
+            "label": "缺口 / 下一步",
+            "type": "text"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "gap_notes",
+        "label": "82 项模型评测覆盖差距：分析说明",
+        "path": "docs/reports/archive/evaluation-planning/2026-07-14-benchmark-gap-analysis/notes.md",
+        "query": {
+          "engine": "SQLite JSON1",
+          "language": "sql",
+          "sql": "SELECT modality, category, benchmark, coverage_status, priority, local_component, result_status, missing_next FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-planning/2026-07-14-benchmark-gap-analysis/artifact.json') AS TEXT), '$.snapshot.datasets.benchmark_gap_rows'))",
+          "description": "按候选 benchmark 名称对照项目主套件、本地 EvalScope 1.6.1 注册表、ThinkingCap 数据 manifest 和已有评测结果。",
+          "filters": [
+            "候选集为用户提供的 82 个 benchmark 行",
+            "近似名称不自动认定为严格等价",
+            "DRY_RUN 与模型卡公开分数不计为本地结果"
+          ],
+          "metric_definitions": [
+            "benchmark_count：各互斥接入状态下的 benchmark 行数",
+            "主套件已接入：同名任务已写入 capability_suites.tsv",
+            "部分接入：主套件已有近似任务，但版本、subset 或规模不完整",
+            "EvalScope 已注册，待接入/对齐：本地 EvalScope 有同名或近似 adapter，但未进入主套件或协议未固定",
+            "未接入：主套件与本地 EvalScope 注册表均无可直接对应任务"
+          ]
+        }
+      },
+      {
+        "id": "benchmark_reference",
+        "label": "Qwen3.5 模型卡评测分数参考表（用户提供）",
+        "path": "docs/reports/archive/evaluation-references/2026-07-14-qwen35-benchmark-score-reference.md"
+      },
+      {
+        "id": "capability_suite",
+        "label": "EvalScope 项目能力主套件",
+        "path": "benchmarks/evalscope/capability_suites.tsv"
+      },
+      {
+        "id": "thinkingcap_preparation",
+        "label": "ThinkingCap 数据准备状态",
+        "path": "benchmarks/thinkingcap/PREPARATION_STATUS.md"
+      },
+      {
+        "id": "mmlu_pilot",
+        "label": "ThinkingCap 能力评测报告",
+        "path": "docs/reports/archive/evaluation-results/2026-07-13-thinkingcap-capability-eval.md"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "report_title",
+        "type": "markdown",
+        "body": "# 82 项模型评测覆盖差距：现在缺什么"
+      },
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 技术摘要\n\n- **你现在最缺的不是更多 benchmark 名单，而是把“可调度”变成同协议、同题目的正式 A/B 结果。** 82 项中只有 10 项精确进入主套件、2 项部分接入；真正较成体系的结果只有 MMLU-Pro pilot，且 Qwen 对照未完成。\n- **44/82 项完全未接入，26/82 项虽然本地 EvalScope 有同名或近似 adapter，但仍缺主套件配置或协议对齐。** 因此不能把“EvalScope 支持”当成“项目已具备”。\n- **视觉语言是最大结构性空白。** 45 项视觉 benchmark 中，主套件精确接入与部分接入均为 0；17 项可从 EvalScope adapter 起步，28 项需要外部或自定义 harness。\n- **建议先做分层而不是追求 82 项全量。** P0 建立 7 项文本核心 A/B；P1 补代码与通用 Agent；P2 建视觉最小套件；P3 再做搜索、视频、GUI/Android 与医疗。"
+      },
+      {
+        "id": "coverage_finding",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 现有工程只直接覆盖 12/82 项\n\n下图把 82 项分成四个互斥状态。`主套件已接入` 只表示脚本配置存在；`部分接入` 表示版本或规模不一致；`EvalScope 已注册` 仍需要加入主套件并固定协议。最大的 44 项缺口需要另接 harness，而不是简单打开一个开关。"
+      },
+      {
+        "id": "coverage_chart_block",
+        "type": "chart",
+        "chartId": "coverage_status_chart"
+      },
+      {
+        "id": "modality_finding",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 视觉语言 45 项尚未进入主套件\n\n语言侧已有 10 项精确接入和 2 项部分接入，可以直接从正式 A/B 开始；视觉侧则是 0。好消息是 MMMU、MMMU-Pro、MathVision、RealWorldQA、OCRBench、TIR-Bench 等已有本地 EvalScope adapter，可先构成最小视觉套件。视频、视觉 Agent、3D 空间与医疗 VQA 仍需专用环境。"
+      },
+      {
+        "id": "modality_summary_block",
+        "type": "table",
+        "tableId": "modality_summary_table"
+      },
+      {
+        "id": "evidence_quality",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 结果证据仍停留在 pilot 与链路 smoke\n\nMMLU-Pro 的 ThinkingCap 280 题 pilot 是目前最接近能力结果的证据，但 Qwen 对照未完成。HumanEval-Plus 和 MBPP-Plus 各 2 题成功只证明 sandbox 链路；LiveCodeBench 在 1.25GB 数据下载阶段中断。大量 `DRY_RUN` 只能证明命令和依赖可调度，不能回答哪个模型更强。"
+      },
+      {
+        "id": "detail_intro",
+        "type": "markdown",
+        "body": "## 逐项缺口与下一步\n\n下表按原始 82 项顺序列出接入状态、建议优先级、本地结果和最小补齐动作。`P0` 是先建立可信文本 A/B；`P3` 代表环境和评测治理最重，不建议作为第一批。"
+      },
+      {
+        "id": "benchmark_gap_table_block",
+        "type": "table",
+        "tableId": "benchmark_gap_table"
+      },
+      {
+        "id": "scope_definitions",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 范围、数据与状态定义\n\n候选集是用户提供的 37 项 Language 与 45 项 Vision Language，共 82 个 benchmark 行。比较对象是当前 Qwen3.6-27B-FP8 与 ThinkingCap-Qwen3.6-27B-FP8 项目。名称相近不自动视为等价；版本、subset、prompt、judge 或 harness 未固定时，统一归入“部分接入”或“待接入/对齐”。模型卡公开分数不计为本地结果。"
+      },
+      {
+        "id": "methodology",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 方法：逐名匹配，再核对协议与结果\n\n1. 从用户提供的参考表提取 82 个 benchmark 名称与类别。\n2. 先与 `capability_suites.tsv` 做严格名称/任务映射。\n3. 再查询本地 EvalScope 1.6.1 注册的 158 个 adapter，近似名称保留协议风险。\n4. 使用 ThinkingCap 数据 manifest、准备状态与 `logs/eval/` 判断数据、harness 和真实结果是否存在。\n5. 每项落入一个互斥接入状态；`DRY_RUN` 不升级为“已有结果”。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "body": "## 限制与稳健性检查\n\n- 82 项公开分数由用户提供，尚未逐项对照官方模型卡；本报告只使用 benchmark 名单，不引用这些分数做能力结论。\n- EvalScope 注册表只证明 adapter 存在；HMMT、Global PIQA、OmniDocBench1.5、ZEROBench_sub 等仍可能版本不一致。\n- 本报告检查本地仓库和本地 EvalScope 环境，没有假设远端 H100 已运行任何新评测。\n- 数据缓存状态可能随下载续传变化；正式运行前仍应检查 dataset revision 与完整性。"
+      },
+      {
+        "id": "recommendations",
+        "type": "markdown",
+        "sourceId": "gap_notes",
+        "body": "## 建议执行顺序\n\n1. **P0 文本核心**：MMLU-Pro、MMLU-Redux、C-Eval、GPQA Diamond、IFEval、IFBench、LongBench v2；两个模型同 run-id、题目、seed、temperature、max tokens 与解析器。\n2. **P1 编码与通用 Agent**：固定 LiveCodeBench v6；把 SWE-bench 从 mini 扩到完整 Verified；接入 Terminal Bench 2，并实际运行 BFCL-V4、TAU2-Bench。\n3. **P2 视觉最小套件**：先接 MMMU-Pro、MathVision、RealWorldQA、OCRBench、TIR-Bench，覆盖综合视觉、数学、真实图像、OCR 和视觉工具调用。\n4. **P3 专用环境**：最后处理 Browsecomp/WideSearch、VideoMME、ScreenSpot/OSWorld/AndroidWorld 与医疗 VQA。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## 正式开跑前仍需决定\n\n- 第一阶段是只比较 Qwen 与 ThinkingCap，还是还要恢复 Agents-A1 作为第三模型？\n- 能力评测使用确定性 `temperature=0` 做工程回归，还是按 ThinkingCap 模型卡的 5 seeds 采样协议复现？\n- 多模态是否纳入本轮目标；若纳入，需要先确认两个端点的图片/视频 API 与模型模板兼容性。\n- Judge 使用本地独立模型还是外部服务；若使用被测模型自评，结论只能标为链路 smoke。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-14T17:35:00+08:00",
+    "status": "ready",
+    "datasets": {
+      "coverage_counts": [
+        {
+          "coverage_status": "未接入",
+          "benchmark_count": 44
+        },
+        {
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "benchmark_count": 26
+        },
+        {
+          "coverage_status": "主套件已接入",
+          "benchmark_count": 10
+        },
+        {
+          "coverage_status": "部分接入",
+          "benchmark_count": 2
+        }
+      ],
+      "modality_counts": [
+        {
+          "modality": "Language",
+          "total": 37,
+          "exact": 10,
+          "partial": 2,
+          "registered": 9,
+          "missing": 16
+        },
+        {
+          "modality": "Vision Language",
+          "total": 45,
+          "exact": 0,
+          "partial": 0,
+          "registered": 17,
+          "missing": 28
+        }
+      ],
+      "benchmark_gap_rows": [
+        {
+          "order": 1,
+          "modality": "Language",
+          "category": "Knowledge",
+          "benchmark": "MMLU-Pro",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "pilot；无完整 A/B",
+          "missing_next": "主套件已接入；仅 ThinkingCap 有 280 题 pilot，Qwen 对照未完成，缺同题正式 A/B。"
+        },
+        {
+          "order": 2,
+          "modality": "Language",
+          "category": "Knowledge",
+          "benchmark": "MMLU-Redux",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；缓存曾因网络中断，正式运行前检查 57 个 config、revision 和完整性。"
+        },
+        {
+          "order": 3,
+          "modality": "Language",
+          "category": "Knowledge",
+          "benchmark": "C-Eval",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；缓存曾因网络中断，且生成式口径与内置多选口径需固定。"
+        },
+        {
+          "order": 4,
+          "modality": "Language",
+          "category": "Knowledge",
+          "benchmark": "SuperGPQA",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 super_gpqa adapter；加入主套件并固定 72 subsets、生成预算与答案抽取。"
+        },
+        {
+          "order": 5,
+          "modality": "Language",
+          "category": "Instruction Following",
+          "benchmark": "IFEval",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；依赖已通过全量 preflight，尚无真实结果。"
+        },
+        {
+          "order": 6,
+          "modality": "Language",
+          "category": "Instruction Following",
+          "benchmark": "IFBench",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；依赖已通过全量 preflight，尚无真实结果。"
+        },
+        {
+          "order": 7,
+          "modality": "Language",
+          "category": "Instruction Following",
+          "benchmark": "MultiChallenge",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应 benchmark adapter、数据版本、评测协议和结果。"
+        },
+        {
+          "order": 8,
+          "modality": "Language",
+          "category": "Long Context",
+          "benchmark": "AA-LCR",
+          "coverage_status": "主套件已接入",
+          "priority": "P1",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；缺固定 LLM judge、prompt 和长上下文协议。"
+        },
+        {
+          "order": 9,
+          "modality": "Language",
+          "category": "Long Context",
+          "benchmark": "LongBench v2",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；当前默认只跑 short/medium，不能直接等同模型卡全量口径。"
+        },
+        {
+          "order": 10,
+          "modality": "Language",
+          "category": "STEM & Reasoning",
+          "benchmark": "HLE w/ CoT",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 hle adapter；需确认 text-only/CoT subset、工具关闭和输出预算。"
+        },
+        {
+          "order": 11,
+          "modality": "Language",
+          "category": "STEM & Reasoning",
+          "benchmark": "GPQA Diamond",
+          "coverage_status": "主套件已接入",
+          "priority": "P0",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；数据集 gated，正式运行前需要授权并记录 revision。"
+        },
+        {
+          "order": 12,
+          "modality": "Language",
+          "category": "STEM & Reasoning",
+          "benchmark": "HMMT Feb 25",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 hmmt25；需核对它对应的月份、题集版本和评分器。"
+        },
+        {
+          "order": 13,
+          "modality": "Language",
+          "category": "STEM & Reasoning",
+          "benchmark": "HMMT Nov 25",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 hmmt25；需核对它对应的月份、题集版本和评分器。"
+        },
+        {
+          "order": 14,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "SWE-bench Verified",
+          "coverage_status": "部分接入",
+          "priority": "P1",
+          "local_component": "swe_bench_verified_mini",
+          "result_status": "无",
+          "missing_next": "当前只配置 50 题 Verified mini；缺完整 Verified 任务、约束一致的容器资源和正式结果。"
+        },
+        {
+          "order": 15,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "Terminal Bench 2",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 terminal_bench_v2；需接入主套件并固定镜像、CPU/RAM、timeout 与网络。"
+        },
+        {
+          "order": 16,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "LiveCodeBench v6",
+          "coverage_status": "部分接入",
+          "priority": "P1",
+          "local_component": "live_code_bench",
+          "result_status": "无",
+          "missing_next": "主套件已有 live_code_bench，但使用 release_latest，未固定 v6；1.25GB 数据下载未完成。"
+        },
+        {
+          "order": 17,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "CodeForces",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应官方 harness、数据版本、代码执行沙箱和资源/timeout 约束。"
+        },
+        {
+          "order": 18,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "OJBench",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应官方 harness、数据版本、代码执行沙箱和资源/timeout 约束。"
+        },
+        {
+          "order": 19,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "FullStackBench en",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应官方 harness、数据版本、代码执行沙箱和资源/timeout 约束。"
+        },
+        {
+          "order": 20,
+          "modality": "Language",
+          "category": "Coding",
+          "benchmark": "FullStackBench zh",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应官方 harness、数据版本、代码执行沙箱和资源/timeout 约束。"
+        },
+        {
+          "order": 21,
+          "modality": "Language",
+          "category": "General Agent",
+          "benchmark": "BFCL-V4",
+          "coverage_status": "主套件已接入",
+          "priority": "P1",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；默认关闭需要外部搜索凭据的 web-search 能力，尚无真实结果。"
+        },
+        {
+          "order": 22,
+          "modality": "Language",
+          "category": "General Agent",
+          "benchmark": "TAU2-Bench",
+          "coverage_status": "主套件已接入",
+          "priority": "P1",
+          "local_component": "capability_suites.tsv",
+          "result_status": "无",
+          "missing_next": "主套件已接入；tau2 与 602MB 数据已就绪，仍需固定用户模拟模型和 airline 修复口径。"
+        },
+        {
+          "order": 23,
+          "modality": "Language",
+          "category": "General Agent",
+          "benchmark": "VITA-Bench",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方 Agent harness、工具 fixture、用户模拟器、max turns 和 judge。"
+        },
+        {
+          "order": 24,
+          "modality": "Language",
+          "category": "General Agent",
+          "benchmark": "DeepPlanning",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方 Agent harness、工具 fixture、用户模拟器、max turns 和 judge。"
+        },
+        {
+          "order": 25,
+          "modality": "Language",
+          "category": "Search Agent",
+          "benchmark": "HLE w/ tool",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方/专用搜索 Agent harness、搜索后端、工具权限、256K context-folding 与 judge。"
+        },
+        {
+          "order": 26,
+          "modality": "Language",
+          "category": "Search Agent",
+          "benchmark": "Browsecomp",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方/专用搜索 Agent harness、搜索后端、工具权限、256K context-folding 与 judge。"
+        },
+        {
+          "order": 27,
+          "modality": "Language",
+          "category": "Search Agent",
+          "benchmark": "Browsecomp-zh",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方/专用搜索 Agent harness、搜索后端、工具权限、256K context-folding 与 judge。"
+        },
+        {
+          "order": 28,
+          "modality": "Language",
+          "category": "Search Agent",
+          "benchmark": "WideSearch",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方/专用搜索 Agent harness、搜索后端、工具权限、256K context-folding 与 judge。"
+        },
+        {
+          "order": 29,
+          "modality": "Language",
+          "category": "Search Agent",
+          "benchmark": "Seal-0",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺官方/专用搜索 Agent harness、搜索后端、工具权限、256K context-folding 与 judge。"
+        },
+        {
+          "order": 30,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "MMMLU",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 mmmlu；加入主套件并固定语言集合与宏平均口径。"
+        },
+        {
+          "order": 31,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "MMLU-ProX",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应多语言数据 adapter、语言集合、宏平均和专用指标/裁判。"
+        },
+        {
+          "order": 32,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "NOVA-63",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应多语言数据 adapter、语言集合、宏平均和专用指标/裁判。"
+        },
+        {
+          "order": 33,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "INCLUDE",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应多语言数据 adapter、语言集合、宏平均和专用指标/裁判。"
+        },
+        {
+          "order": 34,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "Global PIQA",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 只有 piqa；需确认是否包含 Global PIQA 的多语言版本，不能直接视为等价。"
+        },
+        {
+          "order": 35,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "PolyMATH",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 poly_math；加入主套件并固定 18 个语言/子集的汇总方式。"
+        },
+        {
+          "order": 36,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "WMT24++",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P1",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 wmt24pp；加入主套件并准备 XCOMET-XXL 与 55 语言平均。"
+        },
+        {
+          "order": 37,
+          "modality": "Language",
+          "category": "Multilingualism",
+          "benchmark": "MAXIFE",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应多语言数据 adapter、语言集合、宏平均和专用指标/裁判。"
+        },
+        {
+          "order": 38,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "MMMU",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 mmmu；需建立视觉 API 输入、图片缓存和 30 subsets 配置。"
+        },
+        {
+          "order": 39,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "MMMU-Pro",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 mmmu_pro；需建立视觉 API 输入、图片缓存和 30 subsets 配置。"
+        },
+        {
+          "order": 40,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "MathVision",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 math_vision；需固定 boxed-answer prompt、图片预处理与 5 subsets。"
+        },
+        {
+          "order": 41,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "Mathvista(mini)",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 math_vista；需确认 mini split 与模型卡口径。"
+        },
+        {
+          "order": 42,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "DynaMath",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应视觉推理 adapter、图片预处理、答案抽取和版本对齐。"
+        },
+        {
+          "order": 43,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "ZEROBench",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 zerobench；需接入视觉套件并固定 judge/答案解析。"
+        },
+        {
+          "order": 44,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "ZEROBench_sub",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 zerobench，但注册表仅显示 1 subset；需确认 `_sub` 是否可复现。"
+        },
+        {
+          "order": 45,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "VlmsAreBlind",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应视觉推理 adapter、图片预处理、答案抽取和版本对齐。"
+        },
+        {
+          "order": 46,
+          "modality": "Vision Language",
+          "category": "STEM and Puzzle",
+          "benchmark": "BabyVision",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应视觉推理 adapter、图片预处理、答案抽取和版本对齐。"
+        },
+        {
+          "order": 47,
+          "modality": "Vision Language",
+          "category": "General VQA",
+          "benchmark": "RealWorldQA",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 real_world_qa，ThinkingCap manifest 也已登记；缺主套件视觉 runner。"
+        },
+        {
+          "order": 48,
+          "modality": "Vision Language",
+          "category": "General VQA",
+          "benchmark": "MMStar",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 mm_star；缺主套件视觉 runner 和 6 subsets 汇总。"
+        },
+        {
+          "order": 49,
+          "modality": "Vision Language",
+          "category": "General VQA",
+          "benchmark": "MMBenchEN-DEV-v1.1",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 mm_bench；需固定 EN-DEV-v1.1 版本，不能使用默认集合替代。"
+        },
+        {
+          "order": 50,
+          "modality": "Vision Language",
+          "category": "General VQA",
+          "benchmark": "SimpleVQA",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 simple_vqa；缺主套件视觉 runner。"
+        },
+        {
+          "order": 51,
+          "modality": "Vision Language",
+          "category": "General VQA",
+          "benchmark": "HallusionBench",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 hallusion_bench；需固定三项指标与视觉输入。"
+        },
+        {
+          "order": 52,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "OmniDocBench1.5",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 omni_doc_bench；需确认是否为 1.5 版本，并固定四项指标。"
+        },
+        {
+          "order": 53,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "CharXiv(RQ)",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺文档/OCR 专用 adapter、渲染与分辨率策略、页面处理和评分器。"
+        },
+        {
+          "order": 54,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "MMLongBench-Doc",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺文档/OCR 专用 adapter、渲染与分辨率策略、页面处理和评分器。"
+        },
+        {
+          "order": 55,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "CC-OCR",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺文档/OCR 专用 adapter、渲染与分辨率策略、页面处理和评分器。"
+        },
+        {
+          "order": 56,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "AI2D_TEST",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 ai2d；需确认 TEST split 和图表图片预处理。"
+        },
+        {
+          "order": 57,
+          "modality": "Vision Language",
+          "category": "Text Recognition and Document Understanding",
+          "benchmark": "OCRBench",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 ocr_bench/ocr_bench_v2；需选择与模型卡一致的版本。"
+        },
+        {
+          "order": 58,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "ERQA",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 59,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "CountBench",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 60,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "RefCOCO(avg)",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 refcoco；需固定 4 subsets、grounding 输出格式与 avg 计算。"
+        },
+        {
+          "order": 61,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "ODInW13",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 62,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "EmbSpatialBench",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 63,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "RefSpatialBench",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 64,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "LingoQA",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 65,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "Hypersim",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 66,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "SUNRGBD",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 67,
+          "modality": "Vision Language",
+          "category": "Spatial Intelligence",
+          "benchmark": "Nuscene",
+          "coverage_status": "未接入",
+          "priority": "P2",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应空间/3D benchmark adapter、数据资产、grounding 输出协议和评分器。"
+        },
+        {
+          "order": 68,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "VideoMME(w sub.)",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 69,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "VideoMME(w/o sub.)",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 70,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "VideoMMMU",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 71,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "MLVU",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 72,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "MVBench",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 73,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "LVBench",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 74,
+          "modality": "Vision Language",
+          "category": "Video Understanding",
+          "benchmark": "MMVU",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺视频数据与专用 harness、帧采样/字幕策略、视频输入链路和 judge。"
+        },
+        {
+          "order": 75,
+          "modality": "Vision Language",
+          "category": "Visual Agent",
+          "benchmark": "ScreenSpot Pro",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺桌面或 Android 环境、任务镜像/快照、动作执行器、timeout 和成功判定。"
+        },
+        {
+          "order": 76,
+          "modality": "Vision Language",
+          "category": "Visual Agent",
+          "benchmark": "OSWorld-Verified",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺桌面或 Android 环境、任务镜像/快照、动作执行器、timeout 和成功判定。"
+        },
+        {
+          "order": 77,
+          "modality": "Vision Language",
+          "category": "Visual Agent",
+          "benchmark": "AndroidWorld",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺桌面或 Android 环境、任务镜像/快照、动作执行器、timeout 和成功判定。"
+        },
+        {
+          "order": 78,
+          "modality": "Vision Language",
+          "category": "Tool Calling",
+          "benchmark": "TIR-Bench",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 tir_bench；需视觉工具调用 runner，并解释双分数口径。"
+        },
+        {
+          "order": 79,
+          "modality": "Vision Language",
+          "category": "Tool Calling",
+          "benchmark": "V*",
+          "coverage_status": "EvalScope 已注册，待接入/对齐",
+          "priority": "P2",
+          "local_component": "EvalScope 1.6.1 adapter",
+          "result_status": "无",
+          "missing_next": "EvalScope 有 vstar_bench；需固定 grounding 设置，并解释双分数口径。"
+        },
+        {
+          "order": 80,
+          "modality": "Vision Language",
+          "category": "Medical VQA",
+          "benchmark": "SLAKE",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应医疗数据 adapter、许可核对、视觉输入和医疗答案评分口径。"
+        },
+        {
+          "order": 81,
+          "modality": "Vision Language",
+          "category": "Medical VQA",
+          "benchmark": "PMC-VQA",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应医疗数据 adapter、许可核对、视觉输入和医疗答案评分口径。"
+        },
+        {
+          "order": 82,
+          "modality": "Vision Language",
+          "category": "Medical VQA",
+          "benchmark": "MedXpertQA-MM",
+          "coverage_status": "未接入",
+          "priority": "P3",
+          "local_component": "无直接 adapter",
+          "result_status": "无",
+          "missing_next": "缺对应医疗数据 adapter、许可核对、视觉输入和医疗答案评分口径。"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "gap_notes",
+      "label": "82 项模型评测覆盖差距：分析说明",
+      "path": "docs/reports/archive/evaluation-planning/2026-07-14-benchmark-gap-analysis/notes.md",
+      "query": {
+        "engine": "SQLite JSON1",
+        "language": "sql",
+        "sql": "SELECT modality, category, benchmark, coverage_status, priority, local_component, result_status, missing_next FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-planning/2026-07-14-benchmark-gap-analysis/artifact.json') AS TEXT), '$.snapshot.datasets.benchmark_gap_rows'))",
+        "description": "按候选 benchmark 名称对照项目主套件、本地 EvalScope 1.6.1 注册表、ThinkingCap 数据 manifest 和已有评测结果。",
+        "filters": [
+          "候选集为用户提供的 82 个 benchmark 行",
+          "近似名称不自动认定为严格等价",
+          "DRY_RUN 与模型卡公开分数不计为本地结果"
+        ],
+        "metric_definitions": [
+          "benchmark_count：各互斥接入状态下的 benchmark 行数",
+          "主套件已接入：同名任务已写入 capability_suites.tsv",
+          "部分接入：主套件已有近似任务，但版本、subset 或规模不完整",
+          "EvalScope 已注册，待接入/对齐：本地 EvalScope 有同名或近似 adapter，但未进入主套件或协议未固定",
+          "未接入：主套件与本地 EvalScope 注册表均无可直接对应任务"
+        ]
+      }
+    },
+    {
+      "id": "benchmark_reference",
+      "label": "Qwen3.5 模型卡评测分数参考表（用户提供）",
+      "path": "docs/reports/archive/evaluation-references/2026-07-14-qwen35-benchmark-score-reference.md"
+    },
+    {
+      "id": "capability_suite",
+      "label": "EvalScope 项目能力主套件",
+      "path": "benchmarks/evalscope/capability_suites.tsv"
+    },
+    {
+      "id": "thinkingcap_preparation",
+      "label": "ThinkingCap 数据准备状态",
+      "path": "benchmarks/thinkingcap/PREPARATION_STATUS.md"
+    },
+    {
+      "id": "mmlu_pilot",
+      "label": "ThinkingCap 能力评测报告",
+      "path": "docs/reports/archive/evaluation-results/2026-07-13-thinkingcap-capability-eval.md"
+    }
+  ]
+}

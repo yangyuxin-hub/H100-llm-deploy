@@ -271,7 +271,7 @@ batch 摊销权重读取，公式：
 - **显存容量限制 batch 上限**：`max_batch ≈ (总显存 - 权重 - 框架开销) / (KV_cache单请求)`
 - **KV cache 访存瓶颈**：batch 足够大时，KV cache 读取超过权重，转为 KV-cache 访存瓶颈
 
-**实测并发吞吐**（FP8，2026-07-06 在线 benchmark，完整数据见 `logs/bench/SUMMARY.md`）：
+**实测并发吞吐**（FP8，2026-07-06 在线 benchmark，完整数据见 `logs/bench/qwen-20260706-tp4-mtp2/SUMMARY.md`）：
 
 | 场景 | 并发 | output tok/s | 是否线性扩展 |
 |---|---|---|---|
@@ -426,7 +426,7 @@ curl -s http://127.0.0.1:8000/v1/completions \
 
 - 2026-07-02：初版，定位 NaN 根因（torch.compile），找到最优配置（FLASH_ATTN + MTP），单请求 33.7 tok/s
 - 2026-07-03：切换到 cu129 原生镜像，去掉 cuda-compat 层，启动快 36%，并发吞吐 80.2 tok/s
-- 2026-07-06：新增「理论吞吐估算与实测对比」章节。用 roofline 公式估算 decode/prefill 上界，对比 FP8 在线 benchmark（147 tok/s 单流 decode，效率 30%）和 NVFP4 实测（162 tok/s，效率 16%）。修正 TP=4 单流 decode 的理论理解。完整 benchmark 数据见 `logs/bench/SUMMARY.md`
+- 2026-07-06：新增「理论吞吐估算与实测对比」章节。用 roofline 公式估算 decode/prefill 上界，对比 FP8 在线 benchmark（147 tok/s 单流 decode，效率 30%）和 NVFP4 实测（162 tok/s，效率 16%）。修正 TP=4 单流 decode 的理论理解。完整 benchmark 数据见 `logs/bench/qwen-20260706-tp4-mtp2/SUMMARY.md`
 
 ---
 

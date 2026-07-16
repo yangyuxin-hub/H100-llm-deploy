@@ -1,0 +1,196 @@
+{
+  "generated_at": "2026-07-14T20:18:53+08:00",
+  "run_id": "modelcard-core-full-20260714",
+  "benchmark": "IFEval",
+  "sample_count": 541,
+  "instruction_instances": 834,
+  "instruction_types": 25,
+  "models": [
+    "qwen3.6-27b-fp8",
+    "thinkingcap-qwen3.6-27b-fp8"
+  ],
+  "protocol": {
+    "harness": "EvalScope 1.6.1 Native",
+    "dataset_id": "opencompass/ifeval",
+    "split": "train",
+    "few_shot": 0,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": -1,
+    "max_tokens": 8192,
+    "seed": 42,
+    "enable_thinking": true,
+    "eval_batch_size_per_model": 4,
+    "aggregation": "mean over prompts",
+    "silent_truncation": false
+  },
+  "metrics": [
+    {
+      "metric": "Prompt strict",
+      "qwen": 0.8484288355,
+      "thinkingcap": 0.8780036969,
+      "delta": 0.0295748614,
+      "paired_bootstrap_ci95_low": 0.0073937153,
+      "paired_bootstrap_ci95_high": 0.0517560074
+    },
+    {
+      "metric": "Instruction strict",
+      "qwen": 0.8801601972,
+      "thinkingcap": 0.9063462723,
+      "delta": 0.0261860752,
+      "paired_bootstrap_ci95_low": 0.0064695009,
+      "paired_bootstrap_ci95_high": 0.0468268638
+    },
+    {
+      "metric": "Prompt loose",
+      "qwen": 0.8743068392,
+      "thinkingcap": 0.9020332717,
+      "delta": 0.0277264325,
+      "paired_bootstrap_ci95_low": 0.0055452865,
+      "paired_bootstrap_ci95_high": 0.0517560074
+    },
+    {
+      "metric": "Instruction loose",
+      "qwen": 0.8998767714,
+      "thinkingcap": 0.9251386322,
+      "delta": 0.0252618608,
+      "paired_bootstrap_ci95_low": 0.005237215,
+      "paired_bootstrap_ci95_high": 0.0459026494
+    }
+  ],
+  "paired_prompt_results": {
+    "strict": {
+      "both_pass": 447,
+      "qwen_only": 12,
+      "thinkingcap_only": 28,
+      "both_fail": 54,
+      "mcnemar_exact_p": 0.0165890034
+    },
+    "loose": {
+      "both_pass": 460,
+      "qwen_only": 13,
+      "thinkingcap_only": 28,
+      "both_fail": 40,
+      "mcnemar_exact_p": 0.0275331558
+    }
+  },
+  "runtime": [
+    {
+      "model": "Qwen3.6-27B-FP8",
+      "completed": 541,
+      "errors": 0,
+      "mean_latency_s": 11.581443,
+      "median_latency_s": 9.864031,
+      "p90_latency_s": 20.788215,
+      "mean_output_tokens": 2876.911275,
+      "median_output_tokens": 2369,
+      "max_token_stops": 30,
+      "wall_time_s": 1640
+    },
+    {
+      "model": "ThinkingCap-Qwen3.6-27B-FP8",
+      "completed": 541,
+      "errors": 0,
+      "mean_latency_s": 8.592124,
+      "median_latency_s": 7.214417,
+      "p90_latency_s": 14.981783,
+      "mean_output_tokens": 2010.162662,
+      "median_output_tokens": 1653,
+      "max_token_stops": 21,
+      "wall_time_s": 1241
+    }
+  ],
+  "max_token_stop_overlap": {
+    "qwen": 30,
+    "thinkingcap": 21,
+    "both": 12,
+    "union": 39,
+    "qwen_only": 18,
+    "thinkingcap_only": 9
+  },
+  "nontruncated_sensitivity": {
+    "excluded_if_either_model_hit_max_tokens": 39,
+    "remaining_prompts": 502,
+    "prompt_level_strict": {
+      "qwen": 0.8984063745,
+      "thinkingcap": 0.9103585657,
+      "delta": 0.0119521912,
+      "paired_bootstrap_ci95_low": -0.0039840637,
+      "paired_bootstrap_ci95_high": 0.0278884462,
+      "qwen_only": 6,
+      "thinkingcap_only": 12,
+      "mcnemar_exact_p": 0.2378845215
+    },
+    "inst_level_strict": {
+      "qwen": 0.9302788845,
+      "thinkingcap": 0.9389110226,
+      "delta": 0.0086321381,
+      "paired_bootstrap_ci95_low": -0.0036520584,
+      "paired_bootstrap_ci95_high": 0.0215803453
+    },
+    "prompt_level_loose": {
+      "qwen": 0.9262948207,
+      "thinkingcap": 0.9362549801,
+      "delta": 0.0099601594,
+      "paired_bootstrap_ci95_low": -0.0059760956,
+      "paired_bootstrap_ci95_high": 0.0278884462
+    },
+    "inst_level_loose": {
+      "qwen": 0.9515272244,
+      "thinkingcap": 0.9591633466,
+      "delta": 0.0076361222,
+      "paired_bootstrap_ci95_low": -0.0049800797,
+      "paired_bootstrap_ci95_high": 0.0209163347
+    }
+  },
+  "largest_instruction_type_deltas": [
+    {
+      "instruction": "change_case:english_capital",
+      "n": 25,
+      "qwen_strict": 0.68,
+      "thinkingcap_strict": 0.8,
+      "delta": 0.12
+    },
+    {
+      "instruction": "change_case:capital_word_frequency",
+      "n": 25,
+      "qwen_strict": 0.92,
+      "thinkingcap_strict": 0.8,
+      "delta": -0.12
+    },
+    {
+      "instruction": "detectable_format:number_highlighted_sections",
+      "n": 48,
+      "qwen_strict": 0.8958333333,
+      "thinkingcap_strict": 0.9791666667,
+      "delta": 0.0833333333
+    },
+    {
+      "instruction": "detectable_content:postscript",
+      "n": 26,
+      "qwen_strict": 0.9230769231,
+      "thinkingcap_strict": 1.0,
+      "delta": 0.0769230769
+    },
+    {
+      "instruction": "combination:repeat_prompt",
+      "n": 41,
+      "qwen_strict": 0.7317073171,
+      "thinkingcap_strict": 0.8048780488,
+      "delta": 0.0731707317
+    },
+    {
+      "instruction": "detectable_format:json_format",
+      "n": 17,
+      "qwen_strict": 0.9411764706,
+      "thinkingcap_strict": 0.8823529412,
+      "delta": -0.0588235294
+    }
+  ],
+  "raw_sources": {
+    "qwen_report": "logs/eval/modelcard/modelcard-core-full-20260714/ifeval/qwen/reports/qwen3.6-27b-fp8/ifeval.json",
+    "thinkingcap_report": "logs/eval/modelcard/modelcard-core-full-20260714/ifeval/thinkingcap/reports/thinkingcap-qwen3.6-27b-fp8/ifeval.json",
+    "qwen_predictions": "logs/eval/modelcard/modelcard-core-full-20260714/ifeval/qwen/predictions/qwen3.6-27b-fp8/ifeval_default.jsonl",
+    "thinkingcap_predictions": "logs/eval/modelcard/modelcard-core-full-20260714/ifeval/thinkingcap/predictions/thinkingcap-qwen3.6-27b-fp8/ifeval_default.jsonl"
+  }
+}

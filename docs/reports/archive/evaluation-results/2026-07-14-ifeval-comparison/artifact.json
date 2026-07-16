@@ -1,0 +1,287 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "IFEval 双模型评测报告",
+    "description": "Qwen3.6-27B-FP8 与 ThinkingCap-Qwen3.6-27B-FP8 在 541 条 IFEval 提示上的配对比较。",
+    "generatedAt": "2026-07-14T20:18:53+08:00",
+    "cards": [
+      {
+        "id": "primary_score",
+        "description": "主指标要求一条提示中的所有可验证指令都严格满足。",
+        "dataset": "headline",
+        "sourceId": "ifeval_reviewed_data",
+        "metrics": [
+          {"label": "ThinkingCap Prompt strict", "field": "thinkingcap_strict", "format": "percent"},
+          {"label": "Qwen 对照", "field": "qwen_strict", "format": "percent"},
+          {"label": "全量绝对差", "field": "strict_delta", "format": "percent", "signed": true},
+          {"label": "剔除任一方达到上限后的差", "field": "nontruncated_delta", "format": "percent", "signed": true}
+        ]
+      },
+      {
+        "id": "latency_card",
+        "description": "同一 541 条提示、每模型并发 4 时的平均端到端请求延迟。",
+        "dataset": "headline",
+        "sourceId": "ifeval_reviewed_data",
+        "metrics": [
+          {"label": "ThinkingCap 平均延迟（秒）", "field": "thinkingcap_latency", "format": "number"},
+          {"label": "Qwen 对照（秒）", "field": "qwen_latency", "format": "number"},
+          {"label": "相对变化", "field": "latency_reduction", "format": "percent", "signed": true}
+        ]
+      },
+      {
+        "id": "output_card",
+        "description": "服务端 usage 统计的平均输出 token，包含 thinking 模式的推理 token。",
+        "dataset": "headline",
+        "sourceId": "ifeval_reviewed_data",
+        "metrics": [
+          {"label": "ThinkingCap 平均输出 tokens", "field": "thinkingcap_output_tokens", "format": "number"},
+          {"label": "Qwen 对照", "field": "qwen_output_tokens", "format": "number"},
+          {"label": "相对变化", "field": "output_reduction", "format": "percent", "signed": true}
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "metric_comparison",
+        "title": "IFEval 四项准确率",
+        "subtitle": "541 条提示；ThinkingCap 在 strict 与 loose、prompt 与 instruction 四种口径均领先",
+        "intent": "comparison",
+        "question": "两个模型在 IFEval 四项准确率上的差异有多大？",
+        "rationale": "四个离散、同量纲指标适合用分组柱状图直接比较两个模型，并保留精确值表供审计。",
+        "comparisonContext": {
+          "baseline": "Qwen3.6-27B-FP8",
+          "denominator": "541 prompts；instruction 指标为每条 prompt 内指令通过比例的宏平均",
+          "grain": "metric × model",
+          "normalization": "accuracy in [0,1]",
+          "semanticFamily": "instruction-following accuracy",
+          "unit": "percent"
+        },
+        "type": "bar",
+        "dataset": "metric_long",
+        "sourceId": "ifeval_reviewed_data",
+        "encodings": {
+          "x": {"field": "metric", "type": "nominal", "label": "指标"},
+          "y": {"field": "score", "type": "quantitative", "label": "准确率", "format": "percent"},
+          "color": {"field": "model", "type": "nominal", "label": "模型"},
+          "tooltip": [
+            {"field": "delta", "type": "quantitative", "label": "ThinkingCap - Qwen", "format": "percent"},
+            {"field": "n", "type": "quantitative", "label": "提示数", "format": "number"}
+          ]
+        },
+        "valueFormat": "percent",
+        "layout": "full",
+        "labels": {"values": "all"},
+        "legend": {"position": "bottom", "sort": "spec", "title": "模型"},
+        "palette": {"kind": "identity", "name": "blue-orange"},
+        "settings": {"groupMode": "grouped", "showValues": true, "sort": "none"},
+        "surface": {"surface": "card", "viewMode": "both", "interactiveLegend": true}
+      }
+    ],
+    "tables": [
+      {
+        "id": "metric_table",
+        "title": "四项指标精确值",
+        "subtitle": "绝对差为 ThinkingCap 减 Qwen；置信区间来自 50,000 次 paired bootstrap",
+        "dataset": "metric_table",
+        "sourceId": "ifeval_reviewed_data",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "顺序", "type": "number"},
+          {"field": "metric", "label": "指标", "type": "text"},
+          {"field": "qwen", "label": "Qwen", "format": "percent"},
+          {"field": "thinkingcap", "label": "ThinkingCap", "format": "percent"},
+          {"field": "delta", "label": "绝对差", "format": "percent", "movement": true},
+          {"field": "ci", "label": "差值 95% CI", "type": "text"}
+        ]
+      },
+      {
+        "id": "sensitivity_table",
+        "title": "输出上限敏感性（Prompt strict）",
+        "subtitle": "第二行剔除任一模型 stop_reason=max_tokens 的 39 条配对提示",
+        "dataset": "sensitivity",
+        "sourceId": "ifeval_reviewed_data",
+        "defaultSort": {"field": "order", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "order", "label": "顺序", "type": "number"},
+          {"field": "cohort", "label": "样本口径", "type": "text"},
+          {"field": "n", "label": "提示数", "format": "number"},
+          {"field": "qwen", "label": "Qwen", "format": "percent"},
+          {"field": "thinkingcap", "label": "ThinkingCap", "format": "percent"},
+          {"field": "delta", "label": "绝对差", "format": "percent", "movement": true},
+          {"field": "ci", "label": "差值 95% CI", "type": "text"},
+          {"field": "mcnemar_p", "label": "McNemar p", "format": "number"}
+        ]
+      },
+      {
+        "id": "runtime_table",
+        "title": "运行效率与完整性",
+        "subtitle": "同一数据、同为 TP2、每模型并发 4；延迟和 token 来自 EvalScope 请求记录",
+        "dataset": "runtime",
+        "sourceId": "ifeval_reviewed_data",
+        "defaultSort": {"field": "model", "direction": "asc"},
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {"field": "model", "label": "模型", "type": "text"},
+          {"field": "completed", "label": "完成", "format": "number"},
+          {"field": "errors", "label": "错误", "format": "number"},
+          {"field": "mean_latency", "label": "平均延迟（秒）", "format": "number"},
+          {"field": "p90_latency", "label": "P90 延迟（秒）", "format": "number"},
+          {"field": "mean_output_tokens", "label": "平均输出 tokens", "format": "number"},
+          {"field": "max_token_stops", "label": "达到 8,192 上限", "format": "number"},
+          {"field": "wall_time_min", "label": "墙钟时间（分钟）", "format": "number"}
+        ]
+      },
+      {
+        "id": "instruction_table",
+        "title": "差异最大的指令类型",
+        "subtitle": "探索性拆分；每类仅 17–48 个实例，不作为独立排名结论",
+        "dataset": "instruction_types",
+        "sourceId": "ifeval_reviewed_data",
+        "defaultSort": {"field": "abs_delta", "direction": "desc"},
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {"field": "instruction", "label": "指令类型", "type": "text"},
+          {"field": "n", "label": "实例数", "format": "number"},
+          {"field": "qwen", "label": "Qwen strict", "format": "percent"},
+          {"field": "thinkingcap", "label": "ThinkingCap strict", "format": "percent"},
+          {"field": "delta", "label": "绝对差", "format": "percent", "movement": true},
+          {"field": "abs_delta", "label": "绝对差幅度", "format": "percent"}
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "ifeval_reviewed_data",
+        "label": "IFEval 正式运行复核 SQL",
+        "path": "docs/reports/archive/evaluation-results/2026-07-14-ifeval-comparison/source.sql"
+      }
+    ],
+    "blocks": [
+      {"id": "title", "type": "markdown", "body": "# IFEval 双模型评测报告"},
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "sourceId": "ifeval_reviewed_data",
+        "body": "## ThinkingCap 正式分数领先，但差距受输出上限显著影响\n\n**全量主指标 Prompt strict 为 87.80% 对 84.84%，ThinkingCap 绝对领先 2.96 个百分点。** 四项口径均领先 2.53–2.96 个百分点；541 条配对提示中，ThinkingCap 独赢 28 条，Qwen 独赢 12 条。\n\n不过，任一模型达到 8,192-token 上限的 39 条提示贡献了大部分净胜样本。剔除它们后，主指标差距缩小到 **+1.20 个百分点**，paired bootstrap 95% 区间为 **-0.40 到 +2.79pp**。因此当前最稳妥结论是：ThinkingCap 的正式 IFEval 分数更高，并且更擅长控制输出长度；尚不能把全部 2.96pp 都归因于非截断样本上的基础指令遵循能力。"
+      },
+      {"id": "headline_metrics", "type": "metric-strip", "cardIds": ["primary_score", "latency_card", "output_card"]},
+      {
+        "id": "key_findings",
+        "type": "markdown",
+        "sourceId": "ifeval_reviewed_data",
+        "body": "## 四项评分都支持同一个方向\n\n分组柱状图比较相同的 541 条提示。Prompt-level 要求一条提示中的全部约束同时通过，因而比 instruction-level 更严格；loose 会尝试去除首尾行或 Markdown 星号后再检查，可视为对轻微格式偏差的宽松上界。ThinkingCap 在四种组合下均领先，说明结果并非只由某一个评分口径驱动。"
+      },
+      {"id": "metric_chart_block", "type": "chart", "chartId": "metric_comparison", "layout": "full"},
+      {"id": "metric_table_block", "type": "table", "tableId": "metric_table", "layout": "full"},
+      {
+        "id": "paired_robustness",
+        "type": "markdown",
+        "sourceId": "ifeval_reviewed_data",
+        "body": "## 全量配对差异成立，截断敏感性则要求保守解读\n\n全量 strict 的配对结果是：447 条两者都通过、54 条两者都失败、ThinkingCap 独赢 28 条、Qwen 独赢 12 条。差值的 paired bootstrap 95% 区间为 **+0.74 到 +5.18pp**；McNemar 精确检验 p=**0.0166**。\n\n39 条“至少一方达到输出上限”的提示中，Qwen 通过率为 20.51%，ThinkingCap 为 46.15%；它们贡献了 16 个全量净胜提示中的 10 个。剔除后剩余 502 条，ThinkingCap 独赢 12、Qwen 独赢 6，差值 **+1.20pp**，95% 区间跨过 0，McNemar p=0.238。正式成绩有效，但模型间差距的来源明显包含输出长度控制。"
+      },
+      {"id": "sensitivity_table_block", "type": "table", "tableId": "sensitivity_table", "layout": "full"},
+      {
+        "id": "efficiency_findings",
+        "type": "markdown",
+        "sourceId": "ifeval_reviewed_data",
+        "body": "## ThinkingCap 输出更短，运行也更快\n\nThinkingCap 的平均输出 token 少 **30.1%**，平均请求延迟低 **25.8%**，整套墙钟时间由 27.3 分钟降至 20.7 分钟。两模型都完成 541/541 且没有请求错误。达到 8,192-token 上限的样本分别为 Qwen 30 条、ThinkingCap 21 条，其中 12 条重合；ThinkingCap 更少触发上限既是效率优势，也是影响准确率差距的重要机制。"
+      },
+      {"id": "runtime_table_block", "type": "table", "tableId": "runtime_table", "layout": "full"},
+      {
+        "id": "scope_definitions",
+        "type": "markdown",
+        "body": "## 评测范围与指标定义\n\n- **样本：** IFEval `opencompass/ifeval` 的 train split，共 541 条提示、834 个指令实例、25 个指令类型。\n- **Prompt strict（主指标）：** 一条提示里的所有指令都严格通过才记 1，否则记 0。\n- **Instruction strict：** 先计算每条提示内通过指令的比例，再对 541 条提示取宏平均。\n- **Loose：** 对原响应及去除首尾行、Markdown 星号的变体取可通过结果，是对轻微格式偏差更宽松的口径。\n- **比较基础：** 两模型使用相同提示、同一 EvalScope adapter 和相同生成参数；各自独立 TP2 服务并行运行。"
+      },
+      {
+        "id": "methodology",
+        "type": "markdown",
+        "body": "## 冻结协议与复核方法\n\nEvalScope 1.6.1 Native、0-shot、`temperature=0`、`top_p=1`、`top_k=-1`、`max_tokens=8192`、`seed=42`，并显式设置 `enable_thinking=true`；每模型请求并发为 4。报告从两个 EvalScope 聚合报告读取四项分数，并按提示 key 对齐 prediction/review JSONL。差值区间使用固定 seed 42 的 50,000 次 paired bootstrap；prompt-level 的不一致对使用双侧 McNemar 精确检验。指令类型拆分由保存的最终响应重新运行同一 IFEval checker 得到。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "sourceId": "ifeval_reviewed_data",
+        "body": "## 结论边界与不确定性\n\n- 这是单一 benchmark 的自动规则判分，只覆盖可验证格式、长度、关键词和结构约束，不代表开放式质量、知识、推理或安全能力。\n- `temperature=0` 与单个 seed 不能估计服务端或采样设置变化下的重复性；bootstrap 只衡量 541 条已观测提示的配对差异。\n- 截断敏感性是条件分析：剔除达到上限的样本会选择模型行为所形成的子集，不等同于把 `max_tokens` 提高后的反事实成绩。真正验证需要以更高输出预算重跑。\n- 指令类型拆分样本较少，最大正负差异仅用于定位复测方向；例如 ThinkingCap 在大写英文上 +12pp，但在大写词频上 -12pp，不能据此做稳定的类别排名。"
+      },
+      {"id": "instruction_table_block", "type": "table", "tableId": "instruction_table", "layout": "full"},
+      {
+        "id": "recommended_next_steps",
+        "type": "markdown",
+        "body": "## 下一步应提高输出预算并做 thinking 消融\n\n1. 以 `max_tokens=16384` 重跑 39 条截断并集样本，直接观察消除 8,192-token 上限后的反事实成绩。\n2. 增加 `enable_thinking=false` 的同协议消融，区分模型权重差异与 thinking 行为差异。\n3. 结合正在运行的 IFBench 交叉验证；只有第二个指令遵循基准保持同方向，才将优势提升为更广泛结论。\n4. 对 repeat prompt、highlighted sections、JSON format 和 capitalization 进行定向复测，验证类别差异是否可重复。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## 仍待回答的问题\n\n- 去除达到输出上限的样本后，2.96pp 的主指标领先会扩大还是缩小？\n- 在关闭 thinking、降低输出预算或改变并发后，准确率与效率排序是否保持？\n- IFBench 是否会复现 ThinkingCap 的领先，还是 IFEval checker 特定约束带来的局部优势？"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-14T20:18:53+08:00",
+    "status": "ready",
+    "datasets": {
+      "headline": [
+        {
+          "thinkingcap_strict": 0.8780036969,
+          "qwen_strict": 0.8484288355,
+          "strict_delta": 0.0295748614,
+          "nontruncated_delta": 0.0119521912,
+          "thinkingcap_latency": 8.592124,
+          "qwen_latency": 11.581443,
+          "latency_reduction": -0.258117996,
+          "thinkingcap_output_tokens": 2010.162662,
+          "qwen_output_tokens": 2876.911275,
+          "output_reduction": -0.301278342
+        }
+      ],
+      "metric_long": [
+        {"metric": "Prompt strict", "model": "Qwen", "score": 0.8484288355, "delta": 0.0295748614, "n": 541},
+        {"metric": "Prompt strict", "model": "ThinkingCap", "score": 0.8780036969, "delta": 0.0295748614, "n": 541},
+        {"metric": "Instruction strict", "model": "Qwen", "score": 0.8801601972, "delta": 0.0261860752, "n": 541},
+        {"metric": "Instruction strict", "model": "ThinkingCap", "score": 0.9063462723, "delta": 0.0261860752, "n": 541},
+        {"metric": "Prompt loose", "model": "Qwen", "score": 0.8743068392, "delta": 0.0277264325, "n": 541},
+        {"metric": "Prompt loose", "model": "ThinkingCap", "score": 0.9020332717, "delta": 0.0277264325, "n": 541},
+        {"metric": "Instruction loose", "model": "Qwen", "score": 0.8998767714, "delta": 0.0252618608, "n": 541},
+        {"metric": "Instruction loose", "model": "ThinkingCap", "score": 0.9251386322, "delta": 0.0252618608, "n": 541}
+      ],
+      "metric_table": [
+        {"order": 1, "metric": "Prompt strict（主指标）", "qwen": 0.8484288355, "thinkingcap": 0.8780036969, "delta": 0.0295748614, "ci": "+0.74pp – +5.18pp"},
+        {"order": 2, "metric": "Instruction strict", "qwen": 0.8801601972, "thinkingcap": 0.9063462723, "delta": 0.0261860752, "ci": "+0.65pp – +4.68pp"},
+        {"order": 3, "metric": "Prompt loose", "qwen": 0.8743068392, "thinkingcap": 0.9020332717, "delta": 0.0277264325, "ci": "+0.55pp – +5.18pp"},
+        {"order": 4, "metric": "Instruction loose", "qwen": 0.8998767714, "thinkingcap": 0.9251386322, "delta": 0.0252618608, "ci": "+0.52pp – +4.59pp"}
+      ],
+      "runtime": [
+        {"model": "Qwen3.6-27B-FP8", "completed": 541, "errors": 0, "mean_latency": 11.58, "p90_latency": 20.79, "mean_output_tokens": 2876.91, "max_token_stops": 30, "wall_time_min": 27.33},
+        {"model": "ThinkingCap-Qwen3.6-27B-FP8", "completed": 541, "errors": 0, "mean_latency": 8.59, "p90_latency": 14.98, "mean_output_tokens": 2010.16, "max_token_stops": 21, "wall_time_min": 20.68}
+      ],
+      "sensitivity": [
+        {"order": 1, "cohort": "全量正式成绩", "n": 541, "qwen": 0.8484288355, "thinkingcap": 0.8780036969, "delta": 0.0295748614, "ci": "+0.74pp – +5.18pp", "mcnemar_p": 0.0166},
+        {"order": 2, "cohort": "剔除任一方达到 max_tokens", "n": 502, "qwen": 0.8984063745, "thinkingcap": 0.9103585657, "delta": 0.0119521912, "ci": "-0.40pp – +2.79pp", "mcnemar_p": 0.2379}
+      ],
+      "instruction_types": [
+        {"instruction": "change_case:english_capital", "n": 25, "qwen": 0.68, "thinkingcap": 0.8, "delta": 0.12, "abs_delta": 0.12},
+        {"instruction": "change_case:capital_word_frequency", "n": 25, "qwen": 0.92, "thinkingcap": 0.8, "delta": -0.12, "abs_delta": 0.12},
+        {"instruction": "detectable_format:number_highlighted_sections", "n": 48, "qwen": 0.8958333333, "thinkingcap": 0.9791666667, "delta": 0.0833333333, "abs_delta": 0.0833333333},
+        {"instruction": "detectable_content:postscript", "n": 26, "qwen": 0.9230769231, "thinkingcap": 1.0, "delta": 0.0769230769, "abs_delta": 0.0769230769},
+        {"instruction": "combination:repeat_prompt", "n": 41, "qwen": 0.7317073171, "thinkingcap": 0.8048780488, "delta": 0.0731707317, "abs_delta": 0.0731707317},
+        {"instruction": "detectable_format:json_format", "n": 17, "qwen": 0.9411764706, "thinkingcap": 0.8823529412, "delta": -0.0588235294, "abs_delta": 0.0588235294}
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "ifeval_reviewed_data",
+      "label": "IFEval 正式运行复核 SQL",
+      "path": "docs/reports/archive/evaluation-results/2026-07-14-ifeval-comparison/source.sql"
+    }
+  ]
+}

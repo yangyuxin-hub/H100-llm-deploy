@@ -1,0 +1,447 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "三张模型卡评测集清单与可比性地图",
+    "description": "GLM-5.2、ThinkingCap-Qwen3.6-27B 与 Qwen3.5-122B-A10B 模型卡公开评测集的统一分类、交集与协议说明。",
+    "generatedAt": "2026-07-14T16:46:34+08:00",
+    "charts": [
+      {
+        "id": "coverage_chart",
+        "title": "模型卡列出的评测条目数",
+        "subtitle": "按结果表行计数；只代表公开覆盖广度，不代表模型能力高低",
+        "showDescription": true,
+        "type": "bar",
+        "dataset": "coverage_counts",
+        "sourceId": "benchmark_inventory_notes",
+        "encodings": {
+          "x": { "field": "model", "type": "nominal", "label": "模型" },
+          "y": { "field": "entry_count", "type": "quantitative", "label": "评测条目数", "format": "number" }
+        },
+        "layout": "full"
+      }
+    ],
+    "tables": [
+      {
+        "id": "overlap_table",
+        "title": "至少两张模型卡共同出现的测试集",
+        "subtitle": "✓ 表示模型卡列出；版本或协议差异见备注",
+        "showDescription": true,
+        "dataset": "overlap_rows",
+        "defaultSort": { "field": "benchmark", "direction": "asc" },
+        "density": "spacious",
+        "sourceId": "overlap_inventory",
+        "layout": "full",
+        "columns": [
+          { "field": "benchmark", "label": "Benchmark", "type": "text" },
+          { "field": "glm", "label": "GLM-5.2", "type": "text" },
+          { "field": "thinkingcap", "label": "ThinkingCap", "type": "text" },
+          { "field": "qwen", "label": "Qwen3.5", "type": "text" },
+          { "field": "comparability", "label": "可比性备注", "type": "text" }
+        ]
+      },
+      {
+        "id": "glm_table",
+        "title": "GLM-5.2 模型卡评测条目",
+        "subtitle": "19 个结果行；重点是推理、长程编码与 Agent",
+        "showDescription": true,
+        "dataset": "glm_rows",
+        "defaultSort": { "field": "category", "direction": "asc" },
+        "density": "dense",
+        "sourceId": "glm_model_card",
+        "layout": "full",
+        "columns": [
+          { "field": "category", "label": "类别", "type": "text" },
+          { "field": "benchmark", "label": "Benchmark", "type": "text" },
+          { "field": "score", "label": "模型卡分数", "type": "text" },
+          { "field": "protocol", "label": "模型卡公开协议", "type": "text" }
+        ]
+      },
+      {
+        "id": "thinkingcap_table",
+        "title": "ThinkingCap-Qwen3.6-27B 模型卡评测条目",
+        "subtitle": "21 个结果行；同时报告能力、thinking token 与截断/循环",
+        "showDescription": true,
+        "dataset": "thinkingcap_rows",
+        "defaultSort": { "field": "scope", "direction": "asc" },
+        "density": "dense",
+        "sourceId": "thinkingcap_model_card",
+        "layout": "full",
+        "columns": [
+          { "field": "scope", "label": "范围", "type": "text" },
+          { "field": "category", "label": "类别", "type": "text" },
+          { "field": "benchmark", "label": "Benchmark", "type": "text" },
+          { "field": "score", "label": "ThinkingCap 分数", "type": "text" },
+          { "field": "max_tokens", "label": "最大生成", "type": "text" },
+          { "field": "metric_note", "label": "指标/数据备注", "type": "text" }
+        ]
+      },
+      {
+        "id": "qwen_table",
+        "title": "Qwen3.5-122B-A10B 模型卡评测条目",
+        "subtitle": "82 个结果行；覆盖语言、多语言、代码/Agent 与视觉语言",
+        "showDescription": true,
+        "dataset": "qwen_rows",
+        "defaultSort": { "field": "modality", "direction": "asc" },
+        "density": "dense",
+        "sourceId": "qwen_model_card",
+        "layout": "full",
+        "columns": [
+          { "field": "modality", "label": "模态", "type": "text" },
+          { "field": "category", "label": "类别", "type": "text" },
+          { "field": "benchmark", "label": "Benchmark", "type": "text" },
+          { "field": "score", "label": "Qwen3.5-122B-A10B 分数", "type": "text" },
+          { "field": "note", "label": "备注", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "glm_model_card",
+        "label": "zai-org/GLM-5.2 model card",
+        "href": "https://huggingface.co/zai-org/GLM-5.2",
+        "query": {
+          "engine": "SQLite JSON1",
+          "language": "sql",
+          "sql": "SELECT json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.protocol') AS protocol FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.glm_rows'))",
+          "description": "读取从 GLM-5.2 模型卡逐行抄录并复核的评测条目。",
+          "tables_used": ["zai-org/GLM-5.2 model card Benchmark table"]
+        }
+      },
+      {
+        "id": "thinkingcap_model_card",
+        "label": "bottlecapai/ThinkingCap-Qwen3.6-27B model card",
+        "href": "https://huggingface.co/bottlecapai/ThinkingCap-Qwen3.6-27B",
+        "query": {
+          "engine": "SQLite JSON1",
+          "language": "sql",
+          "sql": "SELECT json_extract(value, '$.scope') AS scope, json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.max_tokens') AS max_tokens, json_extract(value, '$.metric_note') AS metric_note FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.thinkingcap_rows'))",
+          "description": "读取从 ThinkingCap-Qwen3.6-27B 模型卡逐行抄录并复核的评测条目。",
+          "tables_used": ["bottlecapai/ThinkingCap-Qwen3.6-27B model card evaluation tables"]
+        }
+      },
+      {
+        "id": "qwen_model_card",
+        "label": "Qwen/Qwen3.5-122B-A10B model card",
+        "href": "https://huggingface.co/Qwen/Qwen3.5-122B-A10B",
+        "query": {
+          "engine": "SQLite JSON1",
+          "language": "sql",
+          "sql": "SELECT json_extract(value, '$.modality') AS modality, json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.note') AS note FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.qwen_rows'))",
+          "description": "读取从 Qwen3.5-122B-A10B 模型卡语言与视觉语言表逐行抄录并复核的评测条目。",
+          "tables_used": ["Qwen/Qwen3.5-122B-A10B model card Language and Vision Language tables"]
+        }
+      },
+      {
+        "id": "benchmark_inventory_notes",
+        "label": "三张模型卡评测集清单：来源与整理说明",
+        "path": "docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/notes.md",
+        "query": {
+          "engine": "ANSI SQL",
+          "language": "sql",
+          "sql": "SELECT model, entry_count FROM (VALUES ('GLM-5.2', 19), ('ThinkingCap-Qwen3.6-27B', 21), ('Qwen3.5-122B-A10B', 82)) AS inventory(model, entry_count)",
+          "description": "将逐行抄录的三张模型卡评测结果表汇总为覆盖条目数。",
+          "filters": ["按模型卡结果行计数", "同一数据集的不同模式或 harness 保留为不同条目"],
+          "metric_definitions": ["entry_count：模型卡 Benchmark 结果表中公开的结果行数，不代表唯一数据集数或模型能力"]
+        }
+      },
+      {
+        "id": "overlap_inventory",
+        "label": "三张模型卡同名测试集交集",
+        "path": "docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/notes.md",
+        "query": {
+          "engine": "SQLite JSON1",
+          "language": "sql",
+          "sql": "SELECT json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.glm') AS glm, json_extract(value, '$.thinkingcap') AS thinkingcap, json_extract(value, '$.qwen') AS qwen, json_extract(value, '$.comparability') AS comparability FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.overlap_rows'))",
+          "description": "读取三张模型卡名称规范化后的同名测试集交集。",
+          "filters": ["至少出现在两张模型卡", "版本不一致的近似名称不作为同一测试集"]
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "id": "report_title",
+        "type": "markdown",
+        "body": "# 三张模型卡评测集清单与可比性地图"
+      },
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "sourceId": "benchmark_inventory_notes",
+        "body": "## 技术摘要\n\n- **Qwen3.5-122B-A10B 的公开覆盖最广**：模型卡列出 82 个评测结果行，除语言、代码和 Agent 外，还系统覆盖多语言、图像、文档、空间、视频、视觉 Agent 与医疗 VQA。\n- **ThinkingCap 的重点不是铺满 benchmark，而是验证能力保持与 token 效率**：共 21 个结果行，明确区分域外、域内留出集与安全集，并以 5 seeds、95% CI、thinking token、截断和循环共同评价。\n- **GLM-5.2 聚焦长程工程任务**：共 19 个结果行，集中在高难推理、repository/terminal coding、MCP/tool Agent；多项任务给到 256K—1M context、128K 级输出和小时级 timeout。\n- **三者共同出现的测试只有 GPQA-Diamond 与 HMMT Nov 2025**。同名结果仍不能直接当作严格 A/B，因为 ThinkingCap 明确使用 5 seeds，而 GLM 公开了 judge/prompt 的部分细节，Qwen 卡则没有为每项给出完整采样协议。"
+      },
+      {
+        "id": "coverage_explanation",
+        "type": "markdown",
+        "body": "## 覆盖广度不等于分数可比\n\n下图只回答“每张卡公开了多少个评测结果行”。Qwen 的数量优势主要来自完整的视觉语言评测矩阵；GLM 与 ThinkingCap 则刻意围绕各自产品主张选择较窄套件。它不能用于判断谁更强。"
+      },
+      { "id": "coverage_chart_block", "type": "chart", "chartId": "coverage_chart" },
+      {
+        "id": "overlap_explanation",
+        "type": "markdown",
+        "body": "## 可直接复用的交集很小\n\n交集表适合用来挑选本地 A/B 的候选任务，但“同名”只代表题集名称接近。正式比较必须再次固定 dataset revision、split、prompt、采样、最大输出、工具环境、judge 和 harness。Terminal-Bench 2.0/2.1、HMMT Feb 2025/2026、SWE-bench Verified/Pro 不应合并。"
+      },
+      { "id": "overlap_table_block", "type": "table", "tableId": "overlap_table" },
+      {
+        "id": "glm_section",
+        "type": "markdown",
+        "sourceId": "glm_model_card",
+        "body": "## GLM-5.2：长程编码与 Agent 优先\n\nGLM 卡把评测协议写得相对具体：推理任务通常 `temperature=1.0, top_p=0.95, max_generation=163840`；代码/Agent 任务会指定 256K—1M context、32K—131072 输出、2—6 小时 timeout、sandbox 资源及 harness。表中两个 Terminal-Bench 2.1 结果是不同 harness，不是重复抄录。"
+      },
+      { "id": "glm_table_block", "type": "table", "tableId": "glm_table" },
+      {
+        "id": "thinkingcap_section",
+        "type": "markdown",
+        "sourceId": "thinkingcap_model_card",
+        "body": "## ThinkingCap：能力保持必须和 token 效率一起看\n\nThinkingCap 的统一主协议是 thinking on、5 seeds、`temperature=1.0, top_p=0.95, top_k=20, min_p=0.0`，并报告均值与 95% CI。域内 7 项是训练混合相关数据集的留出测试，不应作为域外泛化证据；两个安全集也明确提示可能存在原模型训练污染。"
+      },
+      { "id": "thinkingcap_table_block", "type": "table", "tableId": "thinkingcap_table" },
+      {
+        "id": "qwen_section",
+        "type": "markdown",
+        "sourceId": "qwen_model_card",
+        "body": "## Qwen3.5-122B-A10B：覆盖最完整，但逐项协议披露较少\n\nQwen 卡的优势是测试面完整：语言表覆盖知识、指令、长上下文、推理、代码、通用 Agent、搜索 Agent 与多语言；视觉表再覆盖视觉数学、VQA、OCR/文档、空间、视频、视觉 Agent、工具调用和医疗。弱点是多数条目只给分数，缺少逐项 seed、prompt、max tokens 和 judge 细节。"
+      },
+      { "id": "qwen_table_block", "type": "table", "tableId": "qwen_table" },
+      {
+        "id": "methodology",
+        "type": "markdown",
+        "sourceId": "benchmark_inventory_notes",
+        "body": "## 口径与方法\n\n- 逐行读取三张 Hugging Face 模型卡的 Benchmark 表与脚注。\n- 保留模型卡原有任务版本和模式后缀，如 `v6`、`Feb 2026`、`w/ Tools`、`with CI / without CI`。\n- 只把规范化后名称和版本一致的任务列入交集；近似名称单独提示，不强行合并。\n- 分数按模型卡原样记录为文本，因为不同任务的单位可能是 accuracy、judge score、pass rate、Elo、SAFE rate 或 dominance。\n- 评测条目数按结果行统计：GLM 19、ThinkingCap 21、Qwen 82。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "body": "## 可比性限制\n\n- 模型卡不是统一 leaderboard：任务版本、题目时间窗、工具权限、上下文管理和 agent scaffold 可能不同。\n- Qwen 卡多数行未披露完整采样参数；ThinkingCap 未公开全部 prompt、具体 5 个 seed 和所有 judge prompt；GLM 的部分成绩来自第三方 harness 或 best-reported harness。\n- ThinkingCap 的目标包含 thinking-token reduction，单看 accuracy 会丢失其核心指标。\n- Qwen 是视觉语言模型，GLM 卡当前主要是文本/工程任务；把 Qwen 的视觉套件数量与另外两者横比没有能力含义。\n- 本清单反映 2026-07-14 模型卡内容，后续模型卡更新可能改变条目或脚注。"
+      },
+      {
+        "id": "recommendations",
+        "type": "markdown",
+        "body": "## 建议的本地评测分层\n\n1. **三模型公共核心**：先跑 `GPQA-Diamond`、`HMMT Nov 2025`，统一题目、prompt、5 seeds、max tokens 与 judge。\n2. **ThinkingCap/Qwen 质量保持层**：补 `MMLU-Pro`、`MMLU-Redux`、`C-Eval`、`SuperGPQA`、`LiveCodeBench`、`LongBench v2`、`AA-LCR`、`RealWorldQA`，同时记录 thinking tokens 与截断。\n3. **工程 Agent 层**：GLM 重点参考 `SWE-bench Pro`、`NL2Repo`、`Terminal-Bench 2.1`、`MCP-Atlas`、`Tool-Decathlon`；Qwen 参考 `SWE-bench Verified`、`BFCL-V4`、`TAU2-Bench`、搜索 Agent 套件。不同版本分开报告。\n4. **多模态专层**：若被测模型支持 vision，再从 Qwen 卡选 `MMMU-Pro`、`MathVision`、`RealWorldQA`、`OCRBench`、`VideoMME`、`ScreenSpot Pro`；不要把不支持视觉的模型记为失败。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## 正式开跑前仍需固定\n\n- 每个数据集的 Hugging Face repo、revision、split、子集和样本 ID。\n- 生成式答案格式、stop 条件、答案解析器及无效输出处理。\n- seed 数量、采样参数、上下文与输出预算。\n- 代码/Agent 的 harness 版本、工具权限、网络、CPU/RAM、timeout、max turns。\n- LLM judge 的模型版本、prompt、温度、盲评与重试策略。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-14T16:46:34+08:00",
+    "status": "ready",
+    "datasets": {
+      "coverage_counts": [
+        { "model": "GLM-5.2", "entry_count": 19 },
+        { "model": "ThinkingCap-Qwen3.6-27B", "entry_count": 21 },
+        { "model": "Qwen3.5-122B-A10B", "entry_count": 82 }
+      ],
+      "overlap_rows": [
+        { "benchmark": "AA-LCR", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名；需统一 judge 与长上下文协议" },
+        { "benchmark": "C-Eval", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名；ThinkingCap 明确 5 seeds" },
+        { "benchmark": "GPQA-Diamond", "glm": "✓", "thinkingcap": "✓", "qwen": "✓", "comparability": "唯一三方共同高难科学推理集之一" },
+        { "benchmark": "HLE", "glm": "✓", "thinkingcap": "—", "qwen": "✓", "comparability": "GLM 默认报 text-only；Qwen 标为 w/ CoT" },
+        { "benchmark": "HLE w/ Tools", "glm": "✓", "thinkingcap": "—", "qwen": "✓", "comparability": "工具与上下文管理策略必须对齐" },
+        { "benchmark": "HMMT Nov 2025", "glm": "✓", "thinkingcap": "✓", "qwen": "✓", "comparability": "三方共同；ThinkingCap max generation 250K" },
+        { "benchmark": "LiveCodeBench", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "Qwen 明确 v6；ThinkingCap 卡未标版本" },
+        { "benchmark": "LongBench v2", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名；需固定 subset 与 judge" },
+        { "benchmark": "MMLU-Pro", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名；需统一生成式/概率式口径" },
+        { "benchmark": "MMLU-Redux", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名" },
+        { "benchmark": "RealWorldQA", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "多模态；图像预处理必须一致" },
+        { "benchmark": "SuperGPQA", "glm": "—", "thinkingcap": "✓", "qwen": "✓", "comparability": "两卡同名；ThinkingCap max generation 32768" }
+      ],
+      "glm_rows": [
+        { "category": "Reasoning", "benchmark": "HLE", "score": "40.5", "protocol": "text-only subset by default; temp=1.0, top_p=0.95, max generation 163840" },
+        { "category": "Reasoning", "benchmark": "HLE (w/ Tools)", "score": "54.7", "protocol": "300K max context; no context-management strategy" },
+        { "category": "Reasoning", "benchmark": "CritPt", "score": "20.9", "protocol": "reasoning default protocol; further task details not disclosed" },
+        { "category": "Reasoning", "benchmark": "AIME 2026", "score": "99.2", "protocol": "fixed Explanation/Exact Answer/Confidence format; GPT-5.5 medium judge" },
+        { "category": "Reasoning", "benchmark": "HMMT Nov 2025", "score": "94.4", "protocol": "fixed answer format; GPT-5.5 medium judge" },
+        { "category": "Reasoning", "benchmark": "HMMT Feb 2026", "score": "92.5", "protocol": "fixed answer format; GPT-5.5 medium judge" },
+        { "category": "Reasoning", "benchmark": "IMOAnswerBench", "score": "91.0", "protocol": "fixed answer format; GPT-5.5 medium judge" },
+        { "category": "Reasoning", "benchmark": "GPQA-Diamond", "score": "91.2", "protocol": "reasoning default protocol; max generation 163840" },
+        { "category": "Coding", "benchmark": "SWE-bench Pro", "score": "62.1", "protocol": "OpenHands; tailored prompt; temp=1, top_p=1, 32K output, 400K context" },
+        { "category": "Coding", "benchmark": "NL2Repo", "score": "48.9", "protocol": "temp=1, top_p=1, 48K output, 400K context; anti-hacking judges" },
+        { "category": "Coding", "benchmark": "DeepSWE", "score": "46.2", "protocol": "official pier + mini-swe-agent; 2h; 400K; 2 CPU/8GB; no internet" },
+        { "category": "Coding", "benchmark": "ProgramBench (200)", "score": "63.7", "protocol": "Claude-Code 2.1.156; 64K output; 2000 turns; 6h; max effort; 400K" },
+        { "category": "Coding", "benchmark": "Terminal-Bench 2.1 (Terminus-2)", "score": "81.0", "protocol": "json parser; 4h; 48K output; 500 episodes; 256K; 4 CPU/8GB" },
+        { "category": "Coding", "benchmark": "Terminal-Bench 2.1 (Best Reported Harness)", "score": "82.7", "protocol": "Claude Code 2.1.167; temp=1, top_p=0.95, 131072 output; no wall-clock limit; 5-run average" },
+        { "category": "Coding", "benchmark": "FrontierSWE (Dominance)", "score": "74.4", "protocol": "third-party Proximal; 1M context; max effort; 128K output" },
+        { "category": "Coding", "benchmark": "PostTrainBench", "score": "34.3", "protocol": "third-party; 1M context; max effort; 128K output" },
+        { "category": "Coding", "benchmark": "SWE-Marathon", "score": "13.0", "protocol": "third-party Abundant AI; 1M context; max effort; 128K output" },
+        { "category": "Agentic", "benchmark": "MCP-Atlas (Public Set)", "score": "76.8", "protocol": "500 public tasks; think mode; 10 min/task; Gemini-3.0-Pro judge" },
+        { "category": "Agentic", "benchmark": "Tool-Decathlon", "score": "48.2", "protocol": "official evaluation service; max_token 128K" }
+      ],
+      "thinkingcap_rows": [
+        { "scope": "Out-of-domain", "category": "Knowledge & reasoning", "benchmark": "GPQA-Diamond", "score": "83.8 ±1.9", "max_tokens": "100000", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Knowledge & reasoning", "benchmark": "SuperGPQA", "score": "64.0 ±0.1", "max_tokens": "32768", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Knowledge & reasoning", "benchmark": "MMLU-Pro", "score": "85.4 ±0.2", "max_tokens": "100000", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Knowledge & reasoning", "benchmark": "MMLU-Redux", "score": "93.9 ±0.1", "max_tokens": "16384", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Knowledge & reasoning", "benchmark": "C-Eval", "score": "90.3 ±0.6", "max_tokens": "16384", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Math & code", "benchmark": "HMMT Nov 2025", "score": "84.7 ±3.7", "max_tokens": "250000", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Math & code", "benchmark": "LiveCodeBench", "score": "84.3 ±1.0", "max_tokens": "32768", "metric_note": "accuracy/pass result + thinking tokens; version not stated" },
+        { "scope": "Out-of-domain", "category": "Long context & multimodal", "benchmark": "LongBench v2", "score": "60.2 ±1.7", "max_tokens": "100000", "metric_note": "accuracy + thinking tokens; 5 seeds" },
+        { "scope": "Out-of-domain", "category": "Long context & multimodal", "benchmark": "RealWorldQA", "score": "81.9 ±1.2", "max_tokens": "100000", "metric_note": "accuracy + thinking tokens; visual" },
+        { "scope": "Out-of-domain", "category": "Long context & multimodal", "benchmark": "AA-LCR", "score": "74.2 ±2.2", "max_tokens": "100000", "metric_note": "LLM judge CORRECT/INCORRECT" },
+        { "scope": "Out-of-domain", "category": "Instruction & agentic", "benchmark": "System-prompt adherence", "score": "81.5 ±1.8", "max_tokens": "15000", "metric_note": "soft compliance; model card refers to llm-system-prompts-benchmark" },
+        { "scope": "Out-of-domain", "category": "Instruction & agentic", "benchmark": "Claw-Eval", "score": "84.4 ±1.2", "max_tokens": "49152", "metric_note": "judge task score; thinking tokens per task" },
+        { "scope": "In-domain holdout", "category": "Math", "benchmark": "GSM8K", "score": "96.5 ±0.3", "max_tokens": "15000", "metric_note": "full 1319-row test; exact match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "ARC-Challenge", "score": "97.6 ±0.4", "max_tokens": "8192", "metric_note": "up to 1000 rows; last-letter match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "ARC-Easy", "score": "99.4 ±0.2", "max_tokens": "8192", "metric_note": "up to 1000 rows; last-letter match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "CommonsenseQA", "score": "88.2 ±0.9", "max_tokens": "8192", "metric_note": "up to 1000 rows; last-letter match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "OpenBookQA", "score": "96.7 ±0.6", "max_tokens": "8192", "metric_note": "full 500 rows; last-letter match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "QASC", "score": "92.2 ±0.5", "max_tokens": "8192", "metric_note": "full 926 rows; last-letter match" },
+        { "scope": "In-domain holdout", "category": "MCQ", "benchmark": "SciQ", "score": "97.5 ±0.2", "max_tokens": "8192", "metric_note": "up to 1000 rows; last-letter match" },
+        { "scope": "Safety", "category": "Guardrail", "benchmark": "Nemotron-Safety", "score": "99.0 ±0.4 SAFE", "max_tokens": "not stated", "metric_note": "300 prompts sampled from safety split; LLM safety judge" },
+        { "scope": "Safety", "category": "Guardrail", "benchmark": "HEx-PHI", "score": "100.0 ±0.0 SAFE", "max_tokens": "not stated", "metric_note": "300 harmful instructions; LLM safety judge" }
+      ],
+      "qwen_rows": [
+        { "modality": "Language", "category": "Knowledge", "benchmark": "MMLU-Pro", "score": "86.7", "note": "" },
+        { "modality": "Language", "category": "Knowledge", "benchmark": "MMLU-Redux", "score": "94.0", "note": "" },
+        { "modality": "Language", "category": "Knowledge", "benchmark": "C-Eval", "score": "91.9", "note": "" },
+        { "modality": "Language", "category": "Knowledge", "benchmark": "SuperGPQA", "score": "67.1", "note": "" },
+        { "modality": "Language", "category": "Instruction Following", "benchmark": "IFEval", "score": "93.4", "note": "" },
+        { "modality": "Language", "category": "Instruction Following", "benchmark": "IFBench", "score": "76.1", "note": "" },
+        { "modality": "Language", "category": "Instruction Following", "benchmark": "MultiChallenge", "score": "61.5", "note": "" },
+        { "modality": "Language", "category": "Long Context", "benchmark": "AA-LCR", "score": "66.9", "note": "" },
+        { "modality": "Language", "category": "Long Context", "benchmark": "LongBench v2", "score": "60.2", "note": "" },
+        { "modality": "Language", "category": "STEM & Reasoning", "benchmark": "HLE w/ CoT", "score": "25.3", "note": "" },
+        { "modality": "Language", "category": "STEM & Reasoning", "benchmark": "GPQA Diamond", "score": "86.6", "note": "" },
+        { "modality": "Language", "category": "STEM & Reasoning", "benchmark": "HMMT Feb 2025", "score": "91.4", "note": "not HMMT Feb 2026" },
+        { "modality": "Language", "category": "STEM & Reasoning", "benchmark": "HMMT Nov 2025", "score": "90.3", "note": "" },
+        { "modality": "Language", "category": "Coding", "benchmark": "SWE-bench Verified", "score": "72.0", "note": "not SWE-bench Pro" },
+        { "modality": "Language", "category": "Coding", "benchmark": "Terminal Bench 2", "score": "49.4", "note": "not Terminal-Bench 2.1" },
+        { "modality": "Language", "category": "Coding", "benchmark": "LiveCodeBench v6", "score": "78.9", "note": "" },
+        { "modality": "Language", "category": "Coding", "benchmark": "CodeForces", "score": "2100", "note": "evaluated on Qwen's own query set" },
+        { "modality": "Language", "category": "Coding", "benchmark": "OJBench", "score": "39.5", "note": "" },
+        { "modality": "Language", "category": "Coding", "benchmark": "FullStackBench en", "score": "62.6", "note": "" },
+        { "modality": "Language", "category": "Coding", "benchmark": "FullStackBench zh", "score": "58.7", "note": "" },
+        { "modality": "Language", "category": "General Agent", "benchmark": "BFCL-V4", "score": "72.2", "note": "" },
+        { "modality": "Language", "category": "General Agent", "benchmark": "TAU2-Bench", "score": "79.5", "note": "airline domain uses Claude Opus 4.5 system-card fixes" },
+        { "modality": "Language", "category": "General Agent", "benchmark": "VITA-Bench", "score": "33.6", "note": "" },
+        { "modality": "Language", "category": "General Agent", "benchmark": "DeepPlanning", "score": "24.1", "note": "" },
+        { "modality": "Language", "category": "Search Agent", "benchmark": "HLE w/ tool", "score": "47.5", "note": "simple 256K context folding used by most Qwen search agents" },
+        { "modality": "Language", "category": "Search Agent", "benchmark": "BrowseComp", "score": "63.8", "note": "context folding note applies" },
+        { "modality": "Language", "category": "Search Agent", "benchmark": "BrowseComp-zh", "score": "69.9", "note": "context folding note applies" },
+        { "modality": "Language", "category": "Search Agent", "benchmark": "WideSearch", "score": "60.5", "note": "context folding note applies" },
+        { "modality": "Language", "category": "Search Agent", "benchmark": "Seal-0", "score": "44.1", "note": "context folding note applies" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "MMMLU", "score": "86.7", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "MMLU-ProX", "score": "82.2", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "NOVA-63", "score": "58.6", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "INCLUDE", "score": "82.8", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "Global PIQA", "score": "88.4", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "PolyMATH", "score": "68.9", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "WMT24++", "score": "78.3", "note": "" },
+        { "modality": "Language", "category": "Multilingualism", "benchmark": "MAXIFE", "score": "87.9", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "MMMU", "score": "83.9", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "MMMU-Pro", "score": "76.9", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "MathVision", "score": "86.2", "note": "fixed boxed-answer prompt for Qwen; comparator protocol differs" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "MathVista mini", "score": "87.4", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "DynaMath", "score": "85.9", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "ZEROBench", "score": "9", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "ZEROBench_sub", "score": "36.2", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "VlmsAreBlind", "score": "96.7", "note": "" },
+        { "modality": "Vision-Language", "category": "STEM & Puzzle", "benchmark": "BabyVision", "score": "40.2 / 34.5", "note": "with CI / without CI" },
+        { "modality": "Vision-Language", "category": "General VQA", "benchmark": "RealWorldQA", "score": "85.1", "note": "" },
+        { "modality": "Vision-Language", "category": "General VQA", "benchmark": "MMStar", "score": "82.9", "note": "" },
+        { "modality": "Vision-Language", "category": "General VQA", "benchmark": "MMBench EN-DEV-v1.1", "score": "92.8", "note": "" },
+        { "modality": "Vision-Language", "category": "General VQA", "benchmark": "SimpleVQA", "score": "61.7", "note": "" },
+        { "modality": "Vision-Language", "category": "General VQA", "benchmark": "HallusionBench", "score": "67.6", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "OmniDocBench1.5", "score": "89.8", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "CharXiv (RQ)", "score": "77.2", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "MMLongBench-Doc", "score": "59.0", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "CC-OCR", "score": "81.8", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "AI2D_TEST", "score": "93.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Text Recognition & Document", "benchmark": "OCRBench", "score": "92.1", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "ERQA", "score": "62.0", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "CountBench", "score": "97.0", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "RefCOCO avg", "score": "91.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "ODInW13", "score": "44.5", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "EmbSpatialBench", "score": "83.9", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "RefSpatialBench", "score": "69.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "LingoQA", "score": "80.8", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "Hypersim", "score": "12.7", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "SUNRGBD", "score": "36.2", "note": "" },
+        { "modality": "Vision-Language", "category": "Spatial Intelligence", "benchmark": "Nuscene", "score": "15.4", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "VideoMME (w sub.)", "score": "87.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "VideoMME (w/o sub.)", "score": "83.9", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "VideoMMMU", "score": "82.0", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "MLVU", "score": "87.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "MVBench", "score": "76.6", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "LVBench", "score": "74.4", "note": "" },
+        { "modality": "Vision-Language", "category": "Video Understanding", "benchmark": "MMVU", "score": "74.7", "note": "" },
+        { "modality": "Vision-Language", "category": "Visual Agent", "benchmark": "ScreenSpot Pro", "score": "70.4", "note": "" },
+        { "modality": "Vision-Language", "category": "Visual Agent", "benchmark": "OSWorld-Verified", "score": "58.0", "note": "" },
+        { "modality": "Vision-Language", "category": "Visual Agent", "benchmark": "AndroidWorld", "score": "66.4", "note": "" },
+        { "modality": "Vision-Language", "category": "Tool Calling", "benchmark": "TIR-Bench", "score": "53.2 / 42.5", "note": "with CI / without CI" },
+        { "modality": "Vision-Language", "category": "Tool Calling", "benchmark": "V*", "score": "93.2 / 90.1", "note": "with CI / without CI" },
+        { "modality": "Vision-Language", "category": "Medical VQA", "benchmark": "SLAKE", "score": "81.6", "note": "" },
+        { "modality": "Vision-Language", "category": "Medical VQA", "benchmark": "PMC-VQA", "score": "63.3", "note": "" },
+        { "modality": "Vision-Language", "category": "Medical VQA", "benchmark": "MedXpertQA-MM", "score": "67.3", "note": "" }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "glm_model_card",
+      "label": "zai-org/GLM-5.2 model card",
+      "href": "https://huggingface.co/zai-org/GLM-5.2",
+      "query": {
+        "engine": "SQLite JSON1",
+        "language": "sql",
+        "sql": "SELECT json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.protocol') AS protocol FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.glm_rows'))",
+        "description": "读取从 GLM-5.2 模型卡逐行抄录并复核的评测条目。",
+        "tables_used": ["zai-org/GLM-5.2 model card Benchmark table"]
+      }
+    },
+    {
+      "id": "thinkingcap_model_card",
+      "label": "bottlecapai/ThinkingCap-Qwen3.6-27B model card",
+      "href": "https://huggingface.co/bottlecapai/ThinkingCap-Qwen3.6-27B",
+      "query": {
+        "engine": "SQLite JSON1",
+        "language": "sql",
+        "sql": "SELECT json_extract(value, '$.scope') AS scope, json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.max_tokens') AS max_tokens, json_extract(value, '$.metric_note') AS metric_note FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.thinkingcap_rows'))",
+        "description": "读取从 ThinkingCap-Qwen3.6-27B 模型卡逐行抄录并复核的评测条目。",
+        "tables_used": ["bottlecapai/ThinkingCap-Qwen3.6-27B model card evaluation tables"]
+      }
+    },
+    {
+      "id": "qwen_model_card",
+      "label": "Qwen/Qwen3.5-122B-A10B model card",
+      "href": "https://huggingface.co/Qwen/Qwen3.5-122B-A10B",
+      "query": {
+        "engine": "SQLite JSON1",
+        "language": "sql",
+        "sql": "SELECT json_extract(value, '$.modality') AS modality, json_extract(value, '$.category') AS category, json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.score') AS score, json_extract(value, '$.note') AS note FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.qwen_rows'))",
+        "description": "读取从 Qwen3.5-122B-A10B 模型卡语言与视觉语言表逐行抄录并复核的评测条目。",
+        "tables_used": ["Qwen/Qwen3.5-122B-A10B model card Language and Vision Language tables"]
+      }
+    },
+    {
+      "id": "benchmark_inventory_notes",
+      "label": "三张模型卡评测集清单：来源与整理说明",
+      "path": "docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/notes.md",
+      "query": {
+        "engine": "ANSI SQL",
+        "language": "sql",
+        "sql": "SELECT model, entry_count FROM (VALUES ('GLM-5.2', 19), ('ThinkingCap-Qwen3.6-27B', 21), ('Qwen3.5-122B-A10B', 82)) AS inventory(model, entry_count)",
+        "description": "将逐行抄录的三张模型卡评测结果表汇总为覆盖条目数。",
+        "filters": ["按模型卡结果行计数", "同一数据集的不同模式或 harness 保留为不同条目"],
+        "metric_definitions": ["entry_count：模型卡 Benchmark 结果表中公开的结果行数，不代表唯一数据集数或模型能力"]
+      }
+    },
+    {
+      "id": "overlap_inventory",
+      "label": "三张模型卡同名测试集交集",
+      "path": "docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/notes.md",
+      "query": {
+        "engine": "SQLite JSON1",
+        "language": "sql",
+        "sql": "SELECT json_extract(value, '$.benchmark') AS benchmark, json_extract(value, '$.glm') AS glm, json_extract(value, '$.thinkingcap') AS thinkingcap, json_extract(value, '$.qwen') AS qwen, json_extract(value, '$.comparability') AS comparability FROM json_each(json_extract(CAST(readfile('docs/reports/archive/evaluation-references/2026-07-14-model-card-benchmark-inventory/artifact.json') AS TEXT), '$.snapshot.datasets.overlap_rows'))",
+        "description": "读取三张模型卡名称规范化后的同名测试集交集。",
+        "filters": ["至少出现在两张模型卡", "版本不一致的近似名称不作为同一测试集"]
+      }
+    }
+  ]
+}
